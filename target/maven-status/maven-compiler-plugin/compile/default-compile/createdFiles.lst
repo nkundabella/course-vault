@@ -1,0 +1,16 @@
+com\coursevault\services\AuthServlet.class
+com\coursevault\util\InputSanitizer.class
+com\coursevault\hibernate\HibernateUtil.class
+com\coursevault\Main.class
+com\coursevault\services\CalendarServlet.class
+com\coursevault\services\ResourceService.class
+com\coursevault\model\Bookmark.class
+com\coursevault\model\Resource.class
+com\coursevault\services\SubjectServlet.class
+com\coursevault\model\CalendarEvent.class
+com\coursevault\services\DownloadServlet.class
+com\coursevault\services\SubjectService.class
+com\coursevault\services\UserService.class
+com\coursevault\model\Subject.class
+com\coursevault\model\User.class
+com\coursevault\services\MaterialsServlet.class
