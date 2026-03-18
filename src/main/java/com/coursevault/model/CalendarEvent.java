@@ -1,17 +1,20 @@
 package com.coursevault.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "calendar_events")
 public class CalendarEvent {
     public CalendarEvent() {}
-    public CalendarEvent(Long id, String title, LocalDateTime startTime, LocalDateTime endTime, String description, User user) {
+
+    public CalendarEvent(Long id, String title, java.time.LocalDate date, Integer term, String category, boolean major, String description, User user) {
         this.id = id;
         this.title = title;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.date = date;
+        this.term = term;
+        this.category = category;
+        this.major = major;
         this.description = description;
         this.user = user;
     }
@@ -20,8 +23,10 @@ public class CalendarEvent {
     private Long id;
 
     private String title;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private java.time.LocalDate date;
+    private Integer term;
+    private String category;
+    private boolean major;
     private String description;
 
     @ManyToOne
@@ -34,11 +39,17 @@ public class CalendarEvent {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public java.time.LocalDate getDate() { return date; }
+    public void setDate(java.time.LocalDate date) { this.date = date; }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public Integer getTerm() { return term; }
+    public void setTerm(Integer term) { this.term = term; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public boolean isMajor() { return major; }
+    public void setMajor(boolean major) { this.major = major; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
