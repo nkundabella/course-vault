@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+    <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
         <!DOCTYPE html>
         <html lang="en">
 
@@ -145,9 +146,12 @@
                                         <h3>${r.title}</h3>
                                         <p>Year ${r.year} | ${r.type}</p>
                                         <div class="card-actions">
-                                            <button class="btn-action btn-view js-preview-btn" 
-                                                    data-url="${pageContext.request.contextPath}/download/${r.filePath}?mode=view"
-                                                    data-title="${r.title}">View</button>
+                                            <c:set var="lowPath" value="${fn:toLowerCase(r.filePath)}" />
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                                <button class="btn-action btn-view js-preview-btn" 
+                                                        data-url="${pageContext.request.contextPath}/download/${r.filePath}?mode=view"
+                                                        data-title="${r.title}">View</button>
+                                            </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${r.filePath}"
                                                 class="btn-action btn-dl">Download</a>
                                         </div>
@@ -167,9 +171,12 @@
                                         <h3>${b.resource.title}</h3>
                                         <p>Year ${b.resource.year} | ${b.resource.type}</p>
                                         <div class="card-actions">
-                                            <button class="btn-action btn-view js-preview-btn" 
-                                                    data-url="${pageContext.request.contextPath}/download/${b.resource.filePath}?mode=view"
-                                                    data-title="${b.resource.title}">View</button>
+                                            <c:set var="lowPath" value="${fn:toLowerCase(b.resource.filePath)}" />
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                                <button class="btn-action btn-view js-preview-btn" 
+                                                        data-url="${pageContext.request.contextPath}/download/${b.resource.filePath}?mode=view"
+                                                        data-title="${b.resource.title}">View</button>
+                                            </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${b.resource.filePath}"
                                                 class="btn-action btn-dl">Download</a>
                                         </div>

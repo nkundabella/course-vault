@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+    <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
         <!DOCTYPE html>
         <html lang="en">
 
@@ -185,13 +186,16 @@
                                             </div>
                                         </div>
                                         <div class="resource-actions" style="display: flex; gap: 0.8rem;">
-                                            <button class="btn-download js-preview-btn" 
-                                                    data-url="${pageContext.request.contextPath}/download/${res.filePath}?mode=view"
-                                                    data-title="${res.title}"
-                                                    style="background: #F3F4F6; color: #374151; border:none; cursor:pointer;">
-                                                <i class="fas fa-eye"></i>
-                                                View
-                                            </button>
+                                            <c:set var="lowPath" value="${fn:toLowerCase(res.filePath)}" />
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                                <button class="btn-download js-preview-btn" 
+                                                        data-url="${pageContext.request.contextPath}/download/${res.filePath}?mode=view"
+                                                        data-title="${res.title}"
+                                                        style="background: #F3F4F6; color: #374151; border:none; cursor:pointer;">
+                                                    <i class="fas fa-eye"></i>
+                                                    View
+                                                </button>
+                                            </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${res.filePath}"
                                                 class="btn-download">
                                                 <i class="fas fa-download"></i>
