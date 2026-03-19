@@ -191,7 +191,7 @@
                             <input type="text" placeholder="Search subjects, years, or terms...">
                         </div>
                         <div class="user-profile">
-                            <span>${user.fullName} (${user.role})</span>
+                            <span>${user.fullName} (${user.role eq 'PENDING_TEACHER' ? 'Pending Teacher' : user.role})</span>
                             <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
                                 alt="Profile">
                         </div>
@@ -202,7 +202,7 @@
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                             <h2 style="font-weight: 700;">Explore Subjects</h2>
-                            <c:if test="${user.role eq 'ADMIN'}">
+                            <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                 <button class="header-action-wrapper" onclick="openModal()">
                                     <i class="fas fa-plus"></i>
                                     <span>Add Subject</span>
@@ -227,7 +227,7 @@
                                             </div>
                                             <div class="folder-footer">
                                                 <span>View Content</span>
-                                                <c:if test="${user.role eq 'ADMIN'}">
+                                                <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                                     <a href="${pageContext.request.contextPath}/subjects/delete?id=${s.id}"
                                                         style="color: #ffbaba;" title="Delete"
                                                         onclick="event.stopPropagation()">
@@ -244,7 +244,7 @@
                                         <i class="fas fa-folder-open"
                                             style="font-size: 3rem; color: #A68B5B; margin-bottom: 1rem;"></i>
                                         <h3>No subjects found</h3>
-                                        <p>${user.role eq 'ADMIN' ? 'Start by creating your first subject above!' :
+                                        <p>${(user.role eq 'ADMIN' or user.role eq 'TEACHER') ? 'Start by creating your first subject above!' :
                                             'Come
                                             back later when the admins have uploaded resources.'}</p>
                                     </div>

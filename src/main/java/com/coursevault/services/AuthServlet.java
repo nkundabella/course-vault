@@ -211,7 +211,7 @@ public class AuthServlet extends HttpServlet {
             String fullName = req.getParameter("fullName");
             String email = req.getParameter("email");
             String password = req.getParameter("password");
-            String role = req.getParameter("role");
+            String requestedRole = req.getParameter("role");
             String securityQuestion = req.getParameter("securityQuestion");
             String securityAnswer = req.getParameter("securityAnswer");
 
@@ -225,7 +225,12 @@ public class AuthServlet extends HttpServlet {
             user.setFullName(fullName);
             user.setEmail(email);
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
-            user.setRole(role);
+            
+            String assignedRole = "STUDENT";
+            if ("TEACHER".equalsIgnoreCase(requestedRole)) {
+                assignedRole = "PENDING_TEACHER";
+            }
+            user.setRole(assignedRole);
             user.setSecurityQuestion(securityQuestion);
             user.setSecurityAnswer(securityAnswer);
 

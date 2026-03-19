@@ -120,24 +120,24 @@
                             <input type="text" placeholder="Search your materials...">
                         </div>
                         <div class="user-profile">
-                            <span>${user.fullName} (${user.role})</span>
+                            <span>${user.fullName} (${user.role eq 'PENDING_TEACHER' ? 'Pending Teacher' : user.role})</span>
                             <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
                                 alt="Profile">
                         </div>
                     </header>
 
                     <header class="section-header" style="margin-bottom: 2rem; margin-top: 1rem;">
-                        <h1 style="font-weight: 800; margin: 0;">${user.role.toUpperCase().trim() eq 'ADMIN' ? 'My
+                        <h1 style="font-weight: 800; margin: 0;">${(user.role.toUpperCase().trim() eq 'ADMIN' or user.role.toUpperCase().trim() eq 'TEACHER') ? 'My
                             Uploaded Resources' : 'My Materials'}</h1>
                         <p style="color: #6B7280; margin-top: 0.3rem;">
-                            ${user.role.toUpperCase().trim() eq 'ADMIN' ? 'Manage the content you have contributed to
+                            ${(user.role.toUpperCase().trim() eq 'ADMIN' or user.role.toUpperCase().trim() eq 'TEACHER') ? 'Manage the content you have contributed to
                             Course-Vault.' : 'Your personal bookmarks and saved resources.'}
                         </p>
                     </header>
 
                     <div class="materials-grid">
                         <c:choose>
-                            <c:when test="${user.role.toUpperCase().trim() eq 'ADMIN' && not empty resources}">
+                            <c:when test="${(user.role.toUpperCase().trim() eq 'ADMIN' or user.role.toUpperCase().trim() eq 'TEACHER') && not empty resources}">
                                 <c:forEach items="${resources}" var="r">
                                     <div class="material-card animate__animated animate__fadeInUp">
                                         <div class="card-header">
@@ -158,7 +158,7 @@
                                     </div>
                                 </c:forEach>
                             </c:when>
-                            <c:when test="${user.role.toUpperCase().trim() ne 'ADMIN' && not empty bookmarks}">
+                            <c:when test="${(user.role.toUpperCase().trim() ne 'ADMIN' and user.role.toUpperCase().trim() ne 'TEACHER') && not empty bookmarks}">
                                 <c:forEach items="${bookmarks}" var="b">
                                     <div class="material-card animate__animated animate__fadeInUp">
                                         <div class="card-header">
@@ -186,12 +186,12 @@
                             <c:otherwise>
                                 <div
                                     style="grid-column: 1 / -1; text-align: center; padding: 5rem; background: rgba(255,255,255,0.5); border-radius: 30px; border: 2px dashed #E5E7EB;">
-                                    <i class="fas ${user.role eq 'ADMIN' ? 'fa-upload' : 'fa-bookmark'}"
+                                    <i class="fas ${(user.role eq 'ADMIN' or user.role eq 'TEACHER') ? 'fa-upload' : 'fa-bookmark'}"
                                         style="font-size: 3.5rem; color: #E5E7EB; margin-bottom: 1.5rem;"></i>
-                                    <h2 style="color: #374151;">${user.role eq 'ADMIN' ? "You haven't uploaded anything"
+                                    <h2 style="color: #374151;">${(user.role eq 'ADMIN' or user.role eq 'TEACHER') ? "You haven't uploaded anything"
                                         : "No bookmarks yet"}</h2>
                                     <p style="color: #6B7280; max-width: 400px; margin: 0.5rem auto;">
-                                        ${user.role eq 'ADMIN' ? 'Contribute to the vault by adding resources in the
+                                        ${(user.role eq 'ADMIN' or user.role eq 'TEACHER') ? 'Contribute to the vault by adding resources in the
                                         Subjects section!' : 'Explore subjects and bookmark the notes you want to keep
                                         handy!'}
                                     </p>

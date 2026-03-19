@@ -31,7 +31,7 @@ public class CalendarServlet extends HttpServlet {
             req.setAttribute("events", events);
             req.getRequestDispatcher("/calendar.jsp").forward(req, resp);
         } else if (path.equals("/delete")) {
-            if ("ADMIN".equals(user.getRole())) {
+            if ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole())) {
                 String idStr = req.getParameter("id");
                 if (idStr != null) {
                     calendarService.deleteEvent(Long.parseLong(idStr));
@@ -49,7 +49,7 @@ public class CalendarServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
 
-        if (user == null || !"ADMIN".equals(user.getRole())) {
+        if (user == null || (!"ADMIN".equals(user.getRole()) && !"TEACHER".equals(user.getRole()))) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

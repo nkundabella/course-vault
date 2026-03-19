@@ -188,12 +188,12 @@
                         <header class="header-top">
                             <h1 style="font-weight: 700;">Academic Calendar 2025/2026</h1>
                             <div class="user-profile">
-                                <c:if test="${user.role eq 'ADMIN'}">
+                                <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                     <button class="btn-premium" onclick="openModal()">
                                         <i class="fas fa-calendar-plus"></i> Add Event
                                     </button>
                                 </c:if>
-                                <span>${user.fullName}</span>
+                                <span>${user.fullName} (${user.role eq 'PENDING_TEACHER' ? 'Pending Teacher' : user.role})</span>
                                 <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
                                     alt="Profile">
                             </div>
@@ -225,7 +225,7 @@
                                                             </c:if>
                                                         </div>
                                                         <div class="event-desc">${event.description}</div>
-                                                        <c:if test="${user.role eq 'ADMIN'}">
+                                                        <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                                             <a href="${pageContext.request.contextPath}/calendar/delete?id=${event.id}"
                                                                 style="position: absolute; right: 0; top: 0; color: #ff9999; font-size: 0.8rem;"
                                                                 onclick="return confirm('Delete this event?')">

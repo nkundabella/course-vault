@@ -203,7 +203,7 @@
                             <input type="text" placeholder="Search setting...">
                         </div>
                         <div class="user-profile">
-                            <span>${user.fullName} (${user.role})</span>
+                            <span>${user.fullName} (${user.role eq 'PENDING_TEACHER' ? 'Pending Teacher' : user.role})</span>
                             <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
                                 alt="Profile">
                         </div>
@@ -268,7 +268,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label>User Role</label>
-                                            <input type="text" value="${user.role}" disabled>
+                                            <input type="text" value="${user.role eq 'PENDING_TEACHER' ? 'Teacher (Pending Approval)' : user.role}" disabled>
                                         </div>
                                     </div>
                                     <div style="margin-top: 2rem;">

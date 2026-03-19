@@ -167,7 +167,7 @@
                                             <div class="resource-meta">
                                                 <div style="display: flex; align-items: center; gap: 0.8rem;">
                                                     <h3>${res.title}</h3>
-                                                    <c:if test="${user.role ne 'ADMIN'}">
+                                                    <c:if test="${user.role ne 'ADMIN' and user.role ne 'TEACHER'}">
                                                         <c:set var="isBookmarked" value="false" />
                                                         <c:forEach items="${userBookmarks}" var="ub">
                                                             <c:if test="${ub.resource.id eq res.id}">

@@ -50,7 +50,7 @@ public class SubjectServlet extends HttpServlet {
         String path = req.getPathInfo();
         HttpSession session = req.getSession(false);
         User user = (User) session.getAttribute("user");
-        if (user == null || !user.getRole().equals("ADMIN")) {
+        if (user == null || (!user.getRole().equals("ADMIN") && !user.getRole().equals("TEACHER"))) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
