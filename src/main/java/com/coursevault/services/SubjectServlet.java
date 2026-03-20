@@ -29,7 +29,8 @@ public class SubjectServlet extends HttpServlet {
         String path = req.getPathInfo();
         
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/auth/login");
             return;
         }
