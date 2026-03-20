@@ -16,6 +16,7 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
             <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
                 type="module"></script>
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
             <style>
                 body {
                     display: flex;

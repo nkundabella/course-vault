@@ -6,7 +6,7 @@
         <h1>Course Vault</h1>
     </div>
     <ul class="nav-links">
-        <a href="${pageContext.request.contextPath}/subjects/" style="text-decoration: none; color: inherit;">
+        <a href="${pageContext.request.contextPath}/dashboard" style="text-decoration: none; color: inherit;">
             <li class="nav-item">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>

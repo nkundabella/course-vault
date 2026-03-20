@@ -61,7 +61,7 @@
     </style>
 </head>
 <body>
-<c:if test="${empty sessionScope.pending2FAUser}">
+<c:if test="${empty sessionScope.pending2FAUser and empty sessionScope.pendingSignupUser}">
     <c:redirect url="/auth/login"/>
 </c:if>
 
@@ -74,7 +74,8 @@
     </c:if>
 
     <form method="POST" action="${pageContext.request.contextPath}/auth/verify-2fa">
-        <input type="text" name="twoFactorCode" maxlength="6" class="code-input"
+        <input type="hidden" name="type" value="${param.type}">
+        <input type="text" name="code" maxlength="6" class="code-input"
                placeholder="000000" required inputmode="numeric" autocomplete="one-time-code" autofocus>
         <button type="submit" class="btn-verify">Verify Code</button>
     </form>
