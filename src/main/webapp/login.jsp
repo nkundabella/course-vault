@@ -421,7 +421,7 @@
                          style="display:none; margin-top: 1.75rem; background:#FFF9F2; border:1px solid #FFE8D1; padding: 1.25rem; border-radius: 18px;">
                         <div style="font-weight:800; color:#92400E; margin-bottom:0.5rem;">Set up Email 2FA (SMTP)</div>
                         <div style="color:#6B7280; font-size:0.92rem; margin-bottom:1rem;">
-                            Email 2FA is required. We’ll send codes from <b>nkundabella2@gmail.com</b> via Gmail SMTP.
+                            Email 2FA is required. Please set up your SMTP credentials below to proceed.
                         </div>
 
                         <c:if test="${not empty smtpSetupError}">
@@ -429,10 +429,19 @@
                         </c:if>
 
                         <form action="${pageContext.request.contextPath}/auth/bootstrap-smtp" method="POST">
-                            <!-- Keep Gmail SMTP defaults hidden to reduce confusion -->
-                            <input type="hidden" name="smtpHost" value="smtp.gmail.com">
-                            <input type="hidden" name="smtpPort" value="587">
-                            <input type="hidden" name="smtpUser" value="nkundabella2@gmail.com">
+                            <!-- Gmail SMTP defaults -->
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label>SMTP Host</label>
+                                <input type="text" name="smtpHost" value="smtp.gmail.com" placeholder="smtp.gmail.com" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label>SMTP Port</label>
+                                <input type="text" name="smtpPort" value="587" placeholder="587" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label>SMTP Email (User)</label>
+                                <input type="email" name="smtpUser" placeholder="your-email@gmail.com" required>
+                            </div>
                             <div class="form-group">
                                 <label>SMTP Password (App Password)</label>
                                 <input type="password" name="smtpPass" placeholder="••••••••••••••••" required>

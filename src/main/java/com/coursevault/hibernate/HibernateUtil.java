@@ -14,10 +14,13 @@ public class HibernateUtil {
             Configuration configuration = new Configuration();
             
             // Database connection settings
+            String dbUser = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
+            String dbPass = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "";
+            
             configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-            configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/course_vault?useSSL=false&allowPublicKeyRetrieval=true");
-            configuration.setProperty("hibernate.connection.username", "root");
-            configuration.setProperty("hibernate.connection.password", "rootpassword");
+            configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/coursevault?useSSL=false&allowPublicKeyRetrieval=true");
+            configuration.setProperty("hibernate.connection.username", dbUser);
+            configuration.setProperty("hibernate.connection.password", dbPass);
             configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
             configuration.setProperty("hibernate.show_sql", "true");
             configuration.setProperty("hibernate.hbm2ddl.auto", "update");

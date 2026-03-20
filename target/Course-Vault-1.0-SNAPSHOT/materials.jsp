@@ -154,6 +154,9 @@
                                             </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${r.filePath}"
                                                 class="btn-action btn-dl">Download</a>
+                                            <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${r.id}"
+                                                class="btn-action" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;" 
+                                                onclick="return confirm('Delete this resource permanently?');">Delete</a>
                                         </div>
                                     </div>
                                 </c:forEach>
