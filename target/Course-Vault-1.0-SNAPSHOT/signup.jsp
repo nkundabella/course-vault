@@ -273,7 +273,7 @@
                                 <label>Identify as</label>
                                 <select name="role" required>
                                     <option value="STUDENT">Student</option>
-                                    <option value="ADMIN">Admin</option>
+                                    <option value="TEACHER">Teacher</option>
                                 </select>
                             </div>
                         </div>

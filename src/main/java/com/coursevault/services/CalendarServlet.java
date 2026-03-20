@@ -56,12 +56,12 @@ public class CalendarServlet extends HttpServlet {
 
         if (path != null && path.equals("/add")) {
             try {
-                String title = req.getParameter("title");
+                String title = com.coursevault.util.InputSanitizer.cleanText(req.getParameter("title"), 150);
                 LocalDate date = LocalDate.parse(req.getParameter("date"));
                 int term = Integer.parseInt(req.getParameter("term"));
                 String category = req.getParameter("category");
                 boolean major = req.getParameter("major") != null;
-                String description = req.getParameter("description");
+                String description = com.coursevault.util.InputSanitizer.cleanText(req.getParameter("description"), 500);
 
                 CalendarEvent event = new CalendarEvent();
                 event.setTitle(title);

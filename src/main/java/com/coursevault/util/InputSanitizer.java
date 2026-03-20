@@ -5,7 +5,11 @@ public class InputSanitizer {
         if (text == null) return "";
         text = text.trim();
         if (text.length() > maxLength) text = text.substring(0, maxLength);
-        return text.replaceAll("<[^>]*>", ""); // Simple HTML tag removal
+        return text.replaceAll("&", "&amp;")
+                   .replaceAll("<", "&lt;")
+                   .replaceAll(">", "&gt;")
+                   .replaceAll("\"", "&quot;")
+                   .replaceAll("'", "&#x27;");
     }
 
     public static String cleanIconClass(String iconClass) {

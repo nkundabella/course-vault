@@ -208,12 +208,12 @@ public class AuthServlet extends HttpServlet {
 
     private void handleSignup(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         try {
-            String fullName = req.getParameter("fullName");
+            String fullName = InputSanitizer.cleanText(req.getParameter("fullName"), 100);
             String email = req.getParameter("email");
             String password = req.getParameter("password");
             String requestedRole = req.getParameter("role");
-            String securityQuestion = req.getParameter("securityQuestion");
-            String securityAnswer = req.getParameter("securityAnswer");
+            String securityQuestion = InputSanitizer.cleanText(req.getParameter("securityQuestion"), 150);
+            String securityAnswer = InputSanitizer.cleanText(req.getParameter("securityAnswer"), 100);
 
             if (userService.getUserByEmail(email) != null) {
                 req.setAttribute("error", "An account with this email already exists.");

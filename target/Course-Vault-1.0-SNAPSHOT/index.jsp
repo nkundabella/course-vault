@@ -218,188 +218,37 @@
                     </section>
 
                     <section class="subjects-section">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                            <h2 style="font-weight: 700;">Explore Subjects</h2>
-                            <c:if test="${user.role eq 'ADMIN'}">
-                                <button class="header-action-wrapper" onclick="openModal()">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Add Subject</span>
-                                </button>
-                            </c:if>
-                        </div>
+                        <h2 style="font-weight:700; margin-bottom:1.5rem;">Quick Access</h2>
+                        <div class="grid-container" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
 
-                        <div class="grid-container" id="subjects-grid">
-                            <c:choose>
-                                <c:when test="${not empty subjects}">
-                                    <c:forEach items="${subjects}" var="s">
-                                        <div class="subject-card animate__animated animate__fadeInUp"
-                                            onclick="location.href='${pageContext.request.contextPath}/subjects/view?id=${s.id}'">
-                                            <div class="card-folder-tag">SUBJECT</div>
-                                            <div class="folder-icon">
-                                                <i class="${not empty s.iconClass ? s.iconClass : 'fas fa-folder'}"></i>
-                                            </div>
-                                            <div class="folder-title">${s.name}</div>
-                                            <div class="folder-desc">
-                                                ${not empty s.description ? s.description : 'Explore curriculum
-                                                resources, notes and past papers for this unit.'}
-                                            </div>
-                                            <div class="folder-footer">
-                                                <span>View Content</span>
-                                                <c:if test="${user.role eq 'ADMIN'}">
-                                                    <a href="${pageContext.request.contextPath}/subjects/delete?id=${s.id}"
-                                                        style="color: #ffbaba;" title="Delete"
-                                                        onclick="event.stopPropagation()">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </a>
-                                                </c:if>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
-                                </c:when>
-                                <c:otherwise>
-                                    <div
-                                        style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: rgba(255,255,255,0.5); border-radius: 20px; border: 2px dashed #A68B5B;">
-                                        <i class="fas fa-folder-open"
-                                            style="font-size: 3rem; color: #A68B5B; margin-bottom: 1rem;"></i>
-                                        <h3>No subjects found</h3>
-                                        <p>${user.role eq 'ADMIN' ? 'Start by creating your first subject above!' :
-                                            'Come
-                                            back later when the admins have uploaded resources.'}</p>
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
+                            <div class="subject-card" onclick="location.href='${pageContext.request.contextPath}/subjects/'" style="cursor:pointer;">
+                                <div class="card-folder-tag">EXPLORE</div>
+                                <div class="folder-icon"><i class="fas fa-book-open"></i></div>
+                                <div class="folder-title">Subjects</div>
+                                <div class="folder-desc">Browse all course subjects and their resources.</div>
+                                <div class="folder-footer"><span>View Subjects &rarr;</span></div>
+                            </div>
+
+                            <div class="subject-card" onclick="location.href='${pageContext.request.contextPath}/materials/'" style="cursor:pointer;">
+                                <div class="card-folder-tag">LIBRARY</div>
+                                <div class="folder-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="folder-title">Materials</div>
+                                <div class="folder-desc">Access your notes, past papers and bookmarks.</div>
+                                <div class="folder-footer"><span>View Materials &rarr;</span></div>
+                            </div>
+
+                            <div class="subject-card" onclick="location.href='${pageContext.request.contextPath}/timeline'" style="cursor:pointer;">
+                                <div class="card-folder-tag">SCHEDULE</div>
+                                <div class="folder-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="folder-title">Timeline</div>
+                                <div class="folder-desc">See your study timeline and upcoming deadlines.</div>
+                                <div class="folder-footer"><span>View Timeline &rarr;</span></div>
+                            </div>
+
                         </div>
                     </section>
                 </main>
 
-                <!-- Add Subject Modal -->
-                <div class="modal-overlay" id="addSubjectModal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Create New Subject</h3>
-                        </div>
-                        <form action="${pageContext.request.contextPath}/subjects/add" method="POST"
-                            enctype="multipart/form-data">
-                            <div style="display: flex; gap: 1rem;">
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Subject Name</label>
-                                    <input type="text" id="subjectNameInput" name="name" list="subjectSuggestions"
-                                        placeholder="Start typing subject..." required autocomplete="off">
-                                    <datalist id="subjectSuggestions">
-                                        <option value="Data Structures & Algorithms">
-                                        <option value="JAVA">
-                                        <option value="Applied Physics">
-                                        <option value="English">
-                                        <option value="Applied Mathematics">
-                                        <option value="Embedded Systems">
-                                        <option value="Advanced Database">
-                                        <option value="3D Models">
-                                        <option value="Advanced Networking">
-                                        <option value="Web3 Applications Development">
-                                        <option value="Software Engineering">
-                                        <option value="Ikinyarwanda">
-                                        <option value="Entrepreneurship">
-                                        <option value="Citizenship">
-                                    </datalist>
-                                </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Icon Class</label>
-                                    <input type="text" id="iconClassInput" name="iconClass" placeholder="fas fa-book"
-                                        value="fas fa-book">
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea name="description" rows="2" placeholder="Brief course overview..."></textarea>
-                            </div>
-
-                            <hr style="border: 0; border-top: 1px solid #eee; margin: 1.5rem 0;">
-                            <div class="modal-header" style="margin-bottom: 1rem;">
-                                <h3 style="font-size: 1.2rem;">Initial Resource</h3>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Resource Title</label>
-                                <input type="text" name="resourceTitle" placeholder="Fallacies" required>
-                            </div>
-
-                            <div style="display: flex; gap: 1rem;">
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Year</label>
-                                    <input type="number" name="year" value="2023" required>
-                                </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Term</label>
-                                    <select name="term" required>
-                                        <option value="1">Term 1</option>
-                                        <option value="2">Term 2</option>
-                                        <option value="3">Term 3</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Type</label>
-                                    <select name="type" required>
-                                        <option value="NOTES">Notes</option>
-                                        <option value="PAST_PAPER">Past Paper</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Upload File</label>
-                                <input type="file" name="file" required>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
-                                <button type="submit" class="btn-save">Save All</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <script>
-                    function openModal() {
-                        document.getElementById('addSubjectModal').style.display = 'flex';
-                    }
-                    function closeModal() {
-                        document.getElementById('addSubjectModal').style.display = 'none';
-                    }
-                    // Close modal when clicking outside
-                    window.onclick = function (event) {
-                        let modal = document.getElementById('addSubjectModal');
-                        if (event.target == modal) {
-                            closeModal();
-                        }
-                    }
-
-                    // Smart Icon Mapping
-                    const iconMap = {
-                        "Data Structures & Algorithms": "fas fa-sitemap",
-                        "JAVA": "fab fa-java",
-                        "Applied Physics": "fas fa-atom",
-                        "English": "fas fa-language",
-                        "Applied Mathematics": "fas fa-square-root-variable",
-                        "Embedded Systems": "fas fa-microchip",
-                        "Advanced Database": "fas fa-database",
-                        "3D Models": "fas fa-cubes",
-                        "Advanced Networking": "fas fa-network-wired",
-                        "Web3 Applications Development": "fas fa-link",
-                        "Software Engineering": "fas fa-laptop-code",
-                        "Ikinyarwanda": "fas fa-comments",
-                        "Entrepreneurship": "fas fa-lightbulb",
-                        "Citizenship": "fas fa-hands-holding-child"
-                    };
-
-                    document.getElementById('subjectNameInput').addEventListener('input', function (e) {
-                        const val = e.target.value;
-                        if (iconMap[val]) {
-                            document.getElementById('iconClassInput').value = iconMap[val];
-                        }
-                    });
-                </script>
         </body>
-
         </html>
