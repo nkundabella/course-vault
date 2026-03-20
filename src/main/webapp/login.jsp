@@ -391,10 +391,7 @@
                     </c:if>
 
                     <form id="loginForm" onsubmit="handleFormSubmit(event)">
-                        <div class="step-indicator">
-                            <div class="step-dot active" id="dot1"></div>
-                            <div class="step-dot" id="dot2"></div>
-                        </div>
+
 
                         <!-- Step 1: Credentials -->
                         <div id="step1" class="animate__animated animate__fadeIn">
@@ -408,6 +405,11 @@
                                 <i class="fas fa-eye password-toggle" id="togglePassword"></i>
                                 <a href="${pageContext.request.contextPath}/auth/forgot-password"
                                     class="forgot-link">Forgot Password?</a>
+                            </div>
+
+                            <!-- Cloudflare Turnstile -->
+                            <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
+                                <div class="cf-turnstile" data-sitekey="${initParam.turnstileSiteKey}" data-theme="light"></div>
                             </div>
                             <button type="submit" id="loginBtn" class="btn-login" style="display:flex; align-items:center; justify-content:center; gap:0.75rem;">
                                 <span id="btnText">Continue</span>
@@ -481,10 +483,6 @@
                     this.classList.toggle('fa-eye-slash');
                 });
 
-                function handleFormSubmit(e) {
-                    e.preventDefault();
-                    handleInitialLogin();
-                }
 
                 function showError(msg) {
                     errorBox.innerText = msg;
@@ -492,91 +490,75 @@
                     setTimeout(() => { errorBox.classList.remove('animate__shakeX'); void errorBox.offsetWidth; errorBox.classList.add('animate__animated', 'animate__shakeX'); }, 10);
                 }
 
-                function handleInitialLogin() {
+                async function handleFormSubmit(e) {
+                    e.preventDefault();
+                    
                     const email = document.getElementById('email').value;
-                    const passwordValue = document.getElementById('password').value;
+                    const password = document.getElementById('password').value;
+                    const turnstileResponse = document.getElementsByName('cf-turnstile-response')[0]?.value;
 
-                    if (!email || !passwordValue) {
-                        showError("Please fill in both fields.");
+                    if (!turnstileResponse) {
+                        showError("Please complete the Captcha verification.");
                         return;
                     }
 
-                    errorBox.style.display = 'none';
-                    btnText.style.display = 'none';
-                    btnLoader.style.display = 'block';
-                    loginBtn.disabled = true;
-                    setGlobalLoading(true, "Sending your 2FA code...");
-
-                    const formData = new URLSearchParams();
-                    formData.append('email', email);
-                    formData.append('password', passwordValue);
-
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
+                    showLoader(true, "Signing you in...");
                     const contextPath = document.getElementById('contextPath').value;
-                    fetch(contextPath + '/auth/login-step1', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: formData,
-                        signal: controller.signal
-                    })
-                        .then(response => {
-                            clearTimeout(timeoutId);
-                            btnText.style.display = 'block';
-                            btnLoader.style.display = 'none';
-                            loginBtn.disabled = false;
-                            setGlobalLoading(false);
 
-                            if (response.ok) {
-                                window.location.href = contextPath + '/auth/verify-2fa';
-                            } else if (response.status === 401) {
-                                const errorType = response.headers.get('X-Login-Error');
-                                if (errorType === 'user_not_found') {
-                                    showError("This email is not registered in our system.");
-                                } else if (errorType === 'invalid_password') {
-                                    showError("Incorrect password. Please try again.");
-                                } else {
-                                    showError("Invalid credentials.");
-                                }
-                            } else if (response.status === 503) {
-                                const errorType = response.headers.get('X-Login-Error');
-                                const errorDetail = response.headers.get('X-Error-Detail');
-                                if (errorType === 'email_unavailable') {
-                                    showError("Email 2FA is not configured yet. Please set it up below.");
-                                    const box = document.getElementById('smtpSetupBox');
-                                    if (box) box.style.display = 'block';
-                                } else {
-                                    let msg = "Email service is currently unavailable. Please try again later.";
-                                    if (errorDetail) {
-                                        msg += "\nDetails: " + errorDetail;
-                                    }
-                                    showError(msg);
-                                }
-                            } else {
-                                showError("An unexpected error occurred.");
-                            }
-                        })
-                        .catch(err => {
-                            clearTimeout(timeoutId);
-                            btnText.style.display = 'block';
-                            btnLoader.style.display = 'none';
-                            loginBtn.disabled = false;
-                            setGlobalLoading(false);
-                            if (err && err.name === 'AbortError') {
-                                showError("Login timed out. Email service is taking too long.");
-                            } else {
-                                showError("Connection failed. Please check your internet.");
-                            }
+                    try {
+                        const response = await fetch(contextPath + '/auth/login-step1', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ 
+                                email: email, 
+                                password: password,
+                                'cf-turnstile-response': turnstileResponse 
+                            })
                         });
+
+                        if (response.ok) {
+                            window.location.href = contextPath + '/dashboard';
+                        } else {
+                            const errorType = response.headers.get('X-Login-Error');
+                            if (errorType === 'captcha_failed') {
+                                showError("Captcha verification failed. Please try again.");
+                            } else if (errorType === 'user_not_found') {
+                                showError("No account found with that email.");
+                            } else if (errorType === 'invalid_password') {
+                                showError("Incorrect password.");
+                            } else if (response.status === 503) {
+                                if (errorType === 'email_unavailable') {
+                                    showError("Email 2FA is required but not configured. Set up SMTP below.");
+                                    document.getElementById('smtpSetupBox').style.display = 'block';
+                                } else {
+                                    showError("Service temporarily unavailable.");
+                                }
+                            } else {
+                                showError("Login failed. Check your credentials.");
+                            }
+                        }
+                    } catch (err) {
+                        showError("Connection error. Please check your internet.");
+                    } finally {
+                        showLoader(false);
+                    }
                 }
 
-                function setGlobalLoading(isLoading, msg = "Signing you in…") {
+                function showLoader(isLoading, msg = "Loading...") {
                     const overlay = document.getElementById('globalLoadingOverlay');
-                    if (!overlay) return;
-                    const textEl = overlay.querySelector('div[style*="font-weight:700"]');
-                    if (textEl) textEl.innerText = msg;
-                    overlay.style.display = isLoading ? 'flex' : 'none';
+                    const loginBtn = document.getElementById('loginBtn');
+                    const btnText = document.getElementById('btnText');
+                    const btnLoader = document.getElementById('btnLoader');
+
+                    if (overlay) overlay.style.display = isLoading ? 'flex' : 'none';
+                    if (loginBtn) loginBtn.disabled = isLoading;
+                    if (btnText) btnText.style.display = isLoading ? 'none' : 'block';
+                    if (btnLoader) btnLoader.style.display = isLoading ? 'block' : 'none';
+                    
+                    if (isLoading && overlay) {
+                        const textEl = overlay.querySelector('div[style*="font-weight:700"]');
+                        if (textEl) textEl.innerText = msg;
+                    }
                 }
 
                 // If server forwarded back with SMTP setup error, ensure the box is visible.

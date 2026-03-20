@@ -293,15 +293,7 @@
                             </div>
                         </div>
 
-                        <div class="captcha-container">
-                            <label
-                                style="display: block; font-size: 0.8rem; font-weight: 600; color: #6B7280; margin-bottom: 0.5rem;">Verification</label>
-                            <div class="cf-turnstile" data-sitekey="${initParam.turnstileSiteKey}" data-theme="light">
-                            </div>
-                            <p style="margin-top: 0.6rem; font-size: 0.8rem; color: #6B7280;">
-                                If you don’t see the widget, please refresh the page.
-                            </p>
-                        </div>
+
 
                         <button type="submit" class="btn-signup">Complete Sign Up</button>
                     </form>

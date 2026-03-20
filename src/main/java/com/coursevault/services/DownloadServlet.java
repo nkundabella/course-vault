@@ -71,11 +71,25 @@ public class DownloadServlet extends HttpServlet {
             if (lowercaseName.endsWith(".pdf")) mimeType = "application/pdf";
             else if (lowercaseName.endsWith(".jpg") || lowercaseName.endsWith(".jpeg")) mimeType = "image/jpeg";
             else if (lowercaseName.endsWith(".png")) mimeType = "image/png";
+            else if (lowercaseName.endsWith(".txt")) mimeType = "text/plain";
+            else if (lowercaseName.endsWith(".doc")) mimeType = "application/msword";
+            else if (lowercaseName.endsWith(".docx")) mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            else if (lowercaseName.endsWith(".ppt")) mimeType = "application/vnd.ms-powerpoint";
+            else if (lowercaseName.endsWith(".pptx")) mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
             else mimeType = "application/octet-stream";
         }
 
         resp.setContentType(mimeType);
         resp.setContentLength((int) file.length());
+        
+        // Security and Browser Behavior Headers
+        resp.setHeader("X-Content-Type-Options", "nosniff");
+        resp.setHeader("Cache-Control", "private, max-age=3600"); // Cache for 1 hour
+        
+        // Prevent browsers from showing "Open/Save" dialog automatically for common viewable types
+        if ("view".equalsIgnoreCase(req.getParameter("mode"))) {
+            resp.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; style-src 'unsafe-inline';");
+        }
 
         String mode = req.getParameter("mode");
         if ("view".equalsIgnoreCase(mode)) {

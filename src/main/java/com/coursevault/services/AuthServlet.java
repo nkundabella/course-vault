@@ -69,10 +69,20 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    private CaptchaService captchaService = CaptchaService.getInstance();
+
     private void handleLoginStep1(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         try {
             String email = req.getParameter("email");
             String password = req.getParameter("password");
+            String captchaToken = req.getParameter("cf-turnstile-response");
+
+            // Verify Captcha
+            if (!captchaService.verify(captchaToken, req.getRemoteAddr())) {
+                resp.setHeader("X-Login-Error", "captcha_failed");
+                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Captcha verification failed.");
+                return;
+            }
 
             User user = userService.getUserByEmail(email);
             if (user == null) {
@@ -87,21 +97,9 @@ public class AuthServlet extends HttpServlet {
                 return;
             }
 
-            // Generate code and store session FIRST
-            String code = generateCode();
+            // SUCCESS: Skip 2FA for login as requested, just log in!
             HttpSession session = req.getSession();
-            session.setAttribute("pending2FAUser", user);
-            session.setAttribute("twoFactorCode", code);
-
-            try {
-                System.out.println("[AuthServlet] Sending 2FA code to: " + email);
-                mailService.sendVerificationCode(email, code);
-                System.out.println("[AuthServlet] 2FA email dispatched successfully.");
-            } catch (Exception e) {
-                System.err.println("[AuthServlet] Email send failed (user can resend): " + e.getMessage());
-                // Still return 200 — don't block login entirely because of email failure
-            }
-
+            session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);
 
         } catch (Exception e) {
@@ -143,29 +141,32 @@ public class AuthServlet extends HttpServlet {
 
     private void handleVerify2FA(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
-        String submittedCode = req.getParameter("twoFactorCode");
+        String type = req.getParameter("type");
         String actualCode = (session != null) ? (String) session.getAttribute("twoFactorCode") : null;
-        User pendingUser = (session != null) ? (User) session.getAttribute("pending2FAUser") : null;
+        String submittedCode = req.getParameter("code");
 
-        if (pendingUser != null && submittedCode != null && submittedCode.equals(actualCode)) {
-            // Secret superadmin promotion on login for the owner
-            if ("superadmin@coursevault.com".equalsIgnoreCase(pendingUser.getEmail()) || "nkundaisabellaa@gmail.com".equalsIgnoreCase(pendingUser.getEmail())) {
-                if (!"ADMIN".equals(pendingUser.getRole())) {
-                    pendingUser.setRole("ADMIN");
-                    userService.updateUserRole(pendingUser.getId(), "ADMIN");
+        if (submittedCode != null && submittedCode.equals(actualCode)) {
+            if ("signup".equals(type)) {
+                User pendingUser = (User) session.getAttribute("pendingSignupUser");
+                if (pendingUser != null) {
+                    userService.addUser(pendingUser);
+                    session.setAttribute("user", pendingUser);
+                    session.removeAttribute("pendingSignupUser");
+                }
+            } else {
+                User pendingUser = (User) session.getAttribute("pending2FAUser");
+                if (pendingUser != null) {
+                    session.setAttribute("user", pendingUser);
+                    session.removeAttribute("pending2FAUser");
                 }
             }
-            session.setAttribute("user", pendingUser);
-            session.removeAttribute("pending2FAUser");
             session.removeAttribute("twoFactorCode");
-            resp.sendRedirect(req.getContextPath() + "/subjects/");
+            resp.sendRedirect(req.getContextPath() + "/dashboard"); // Redirect to new dashboard
         } else {
-            req.setAttribute("error", "Invalid verification code. Please try again.");
+            req.setAttribute("error", "Invalid verification code.");
             try {
                 req.getRequestDispatcher("/verify_2fa.jsp").forward(req, resp);
-            } catch (ServletException e) {
-                resp.sendError(500);
-            }
+            } catch (Exception e) { resp.sendError(500); }
         }
     }
 
@@ -253,11 +254,23 @@ public class AuthServlet extends HttpServlet {
             user.setSecurityQuestion(securityQuestion);
             user.setSecurityAnswer(securityAnswer);
 
-            userService.addUser(user);
-            resp.sendRedirect(req.getContextPath() + "/auth/login?success=account_created");
+            // Step 1: Hold user in session for 2FA
+            String code = generateCode();
+            HttpSession session = req.getSession();
+            session.setAttribute("pendingSignupUser", user);
+            session.setAttribute("twoFactorCode", code);
+
+            // Step 2: Send code
+            try {
+                mailService.sendVerificationCode(email, code);
+            } catch (Exception e) {
+                System.err.println("Signup email failed: " + e.getMessage());
+            }
+
+            resp.sendRedirect(req.getContextPath() + "/auth/verify-2fa?type=signup");
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "Failed to create account: " + e.getMessage());
+            req.setAttribute("error", "Failed to prepare signup: " + e.getMessage());
             req.getRequestDispatcher("/signup.jsp").forward(req, resp);
         }
     }
