@@ -10,7 +10,6 @@ import java.io.IOException;
 public class NavigationServlet extends HttpServlet {
     private SubjectService subjectService = SubjectService.getInstance();
     private ResourceService resourceService = ResourceService.getInstance();
-    private BookmarkService bookmarkService = BookmarkService.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -27,7 +26,7 @@ public class NavigationServlet extends HttpServlet {
             // Fetch Dashboard Data
             req.setAttribute("subjectCount", subjectService.getAllSubjects().size());
             req.setAttribute("resourceCount", resourceService.getAllResources().size());
-            req.setAttribute("bookmarkCount", bookmarkService.getUserBookmarks(user.getId()).size());
+            req.setAttribute("bookmarkCount", resourceService.getBookmarksByUser(user.getId()).size());
             req.setAttribute("recentResources", resourceService.getRecentResources(3)); // Get top 3
             
             req.getRequestDispatcher("/dashboard.jsp").forward(req, resp);
