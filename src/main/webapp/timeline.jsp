@@ -122,7 +122,28 @@
 
                     <div class="timeline-container">
                         <c:choose>
-                            <c:when test="${not empty recentResources}">
+                            <c:when test="${not empty recentResources or not empty upcomingEvents}">
+                                <!-- Calendar Events First (Upcoming) -->
+                                <c:forEach items="${upcomingEvents}" var="evt">
+                                    <div class="timeline-event animate__animated animate__fadeInLeft">
+                                        <div class="event-dot" style="border-color: #60A5FA;"></div>
+                                        <div class="event-card" style="border-left: 4px solid #60A5FA;">
+                                            <div class="event-header">
+                                                <span class="event-type" style="color: #60A5FA;">Upcoming ${evt.category}</span>
+                                                <span style="font-size: 0.8rem; color: #9CA3AF;">${evt.date}</span>
+                                            </div>
+                                            <h3>${evt.title}</h3>
+                                            <p>${evt.description}</p>
+                                            <div class="event-footer">
+                                                <a href="${pageContext.request.contextPath}/calendar/" class="btn-event" style="color: #60A5FA;">
+                                                    <i class="fas fa-calendar-alt"></i> View in Calendar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+
+                                <!-- Recent Resources -->
                                 <c:forEach items="${recentResources}" var="res">
                                     <div class="timeline-event animate__animated animate__fadeInLeft">
                                         <div class="event-dot"></div>

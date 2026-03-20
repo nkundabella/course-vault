@@ -35,6 +35,7 @@ public class NavigationServlet extends HttpServlet {
             req.getRequestDispatcher("/settings.jsp").forward(req, resp);
         } else if (servletPath.equals("/timeline")) {
             req.setAttribute("recentResources", resourceService.getRecentResources(10));
+            req.setAttribute("upcomingEvents", CalendarService.getInstance().getAllEvents());
             req.getRequestDispatcher("/timeline.jsp").forward(req, resp);
         } else {
             resp.sendRedirect(req.getContextPath() + "/");
