@@ -49,6 +49,12 @@ public class UserService {
         }
     }
 
+    public long getUserCount() {
+        try (Session sesh = getSfb().openSession()) {
+            return sesh.createQuery("select count(u) from User u", Long.class).uniqueResult();
+        }
+    }
+
     public void updateUserRole(long userId, String newRole) {
         try (Session sesh = getSfb().openSession()) {
             sesh.beginTransaction();

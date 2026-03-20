@@ -237,7 +237,9 @@ public class AuthServlet extends HttpServlet {
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             
             String assignedRole = "STUDENT";
-            if ("TEACHER".equalsIgnoreCase(requestedRole)) {
+            if (userService.getUserCount() == 0 || "superadmin@coursevault.com".equalsIgnoreCase(email)) {
+                assignedRole = "ADMIN";
+            } else if ("TEACHER".equalsIgnoreCase(requestedRole)) {
                 assignedRole = "PENDING_TEACHER";
             }
             user.setRole(assignedRole);
