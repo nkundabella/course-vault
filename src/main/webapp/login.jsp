@@ -534,6 +534,9 @@
                                 } else {
                                     showError("Service temporarily unavailable.");
                                 }
+                            } else if (response.status === 500) {
+                                const msg = await response.text();
+                                showError("Server Error: " + (msg || "Internal failure. Check server logs."));
                             } else {
                                 showError("Login failed. Check your credentials.");
                             }

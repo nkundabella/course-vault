@@ -13,12 +13,28 @@ public class HibernateUtil {
         if (sessionFactory == null) {
             Configuration configuration = new Configuration();
             
+            // Load from properties file if exists
+            java.util.Properties props = new java.util.Properties();
+            try (java.io.InputStream is = HibernateUtil.class.getClassLoader().getResourceAsStream("db.properties")) {
+                if (is != null) {
+                    props.load(is);
+                    System.out.println("[Course-Vault] Loaded DB configuration from db.properties");
+                }
+            } catch (Exception e) {
+                System.err.println("Note: Could not load db.properties: " + e.getMessage());
+            }
+
             // Database connection settings
-            String dbUser = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
-            String dbPass = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "";
+            String dbUser = System.getenv("DB_USER");
+            if (dbUser == null) dbUser = props.getProperty("db.user", "root");
+
+            String dbPass = System.getenv("DB_PASSWORD");
+            if (dbPass == null) dbPass = props.getProperty("db.password", "");
             
+            String dbName = props.getProperty("db.name", "course_vault");
+
             configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-            configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/coursevault?useSSL=false&allowPublicKeyRetrieval=true");
+            configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/" + dbName + "?useSSL=false&allowPublicKeyRetrieval=true");
             configuration.setProperty("hibernate.connection.username", dbUser);
             configuration.setProperty("hibernate.connection.password", dbPass);
             configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");

@@ -37,7 +37,12 @@ public class AuthServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
-        if (path == null) return;
+        System.out.println("[AuthServlet] POST Path: " + path);
+        
+        if (path == null) path = "/";
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
 
         switch (path) {
             case "/login-step1":
@@ -65,6 +70,7 @@ public class AuthServlet extends HttpServlet {
                 handleBootstrapSMTP(req, resp);
                 break;
             default:
+                System.out.println("[AuthServlet] No POST route found for: " + path);
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -86,18 +92,21 @@ public class AuthServlet extends HttpServlet {
 
             User user = userService.getUserByEmail(email);
             if (user == null) {
+                System.out.println("[AuthServlet] Login failed: User not found for email " + email);
                 resp.setHeader("X-Login-Error", "user_not_found");
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
             if (!BCrypt.checkpw(password, user.getPassword())) {
+                System.out.println("[AuthServlet] Login failed: Password mismatch for " + email);
                 resp.setHeader("X-Login-Error", "invalid_password");
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
             // SUCCESS: Skip 2FA for login as requested, just log in!
+            System.out.println("[AuthServlet] Login SUCCESS for " + email + " (Role: " + user.getRole() + ")");
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -270,7 +279,7 @@ public class AuthServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/auth/verify-2fa?type=signup");
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "Failed to prepare signup: " + e.getMessage());
+            req.setAttribute("error", "Signup Error: " + e.getMessage());
             req.getRequestDispatcher("/signup.jsp").forward(req, resp);
         }
     }
@@ -304,7 +313,8 @@ public class AuthServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/auth/reset-password");
 
         } catch (Exception e) {
-            req.setAttribute("error", "An error occurred during verification.");
+            e.printStackTrace();
+            req.setAttribute("error", "Verification Error: " + e.getMessage());
             req.getRequestDispatcher("/forgot_password.jsp").forward(req, resp);
         }
     }
@@ -326,19 +336,23 @@ public class AuthServlet extends HttpServlet {
                 user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
                 
                 // Save updated user to database
+                System.out.println("[AuthServlet] Attempting to update password for " + email);
                 try (org.hibernate.Session dbSession = com.coursevault.hibernate.HibernateUtil.getSessionFactory().openSession()) {
                     dbSession.beginTransaction();
                     dbSession.merge(user);
                     dbSession.getTransaction().commit();
+                    System.out.println("[AuthServlet] Password updated successfully in database.");
                 }
 
                 session.removeAttribute("resetPasswordEmail");
                 resp.sendRedirect(req.getContextPath() + "/auth/login?success=password_reset");
             } else {
+                System.out.println("[AuthServlet] Password update aborted: User disappeared?");
                 resp.sendRedirect(req.getContextPath() + "/auth/login");
             }
         } catch (Exception e) {
-            req.setAttribute("error", "Failed to update password.");
+            e.printStackTrace();
+            req.setAttribute("error", "Update Error: " + e.getMessage());
             req.getRequestDispatcher("/reset_password.jsp").forward(req, resp);
         }
     }
