@@ -42,6 +42,12 @@ public class ResourceService {
             sesh.beginTransaction();
             Resource resource = sesh.get(Resource.class, id);
             if (resource != null) {
+                if (resource.getFilePath() != null) {
+                    java.io.File file = new java.io.File(resource.getFilePath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
                 sesh.remove(resource);
             }
             sesh.getTransaction().commit();

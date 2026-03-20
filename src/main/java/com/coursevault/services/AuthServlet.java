@@ -21,6 +21,10 @@ public class AuthServlet extends HttpServlet {
             req.getRequestDispatcher("/login.jsp").forward(req, resp);
         } else if (path.equals("/signup")) {
             req.getRequestDispatcher("/signup.jsp").forward(req, resp);
+        } else if (path.equals("/forgot-password")) {
+            req.getRequestDispatcher("/forgot_password.jsp").forward(req, resp);
+        } else if (path.equals("/reset-password")) {
+            req.getRequestDispatcher("/reset_password.jsp").forward(req, resp);
         } else if (path.equals("/verify-2fa")) {
             req.getRequestDispatcher("/verify_2fa.jsp").forward(req, resp);
         } else if (path.equals("/logout")) {
@@ -50,6 +54,12 @@ public class AuthServlet extends HttpServlet {
                 break;
             case "/send-2fa-code":
                 handleSend2FACode(req, resp);
+                break;
+            case "/verify-identity":
+                handleVerifyIdentity(req, resp);
+                break;
+            case "/update-password":
+                handleUpdatePassword(req, resp);
                 break;
             case "/bootstrap-smtp":
                 handleBootstrapSMTP(req, resp);
@@ -245,5 +255,69 @@ public class AuthServlet extends HttpServlet {
 
     private String generateCode() {
         return String.format("%06d", new java.util.Random().nextInt(1000000));
+    }
+
+    private void handleVerifyIdentity(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        try {
+            String email = req.getParameter("email");
+            String securityQuestion = req.getParameter("securityQuestion");
+            String securityAnswer = req.getParameter("securityAnswer");
+
+            User user = userService.getUserByEmail(email);
+            if (user == null) {
+                req.setAttribute("error", "No account found with that email address.");
+                req.getRequestDispatcher("/forgot_password.jsp").forward(req, resp);
+                return;
+            }
+
+            if (!user.getSecurityQuestion().equals(securityQuestion) || 
+                !user.getSecurityAnswer().equalsIgnoreCase(securityAnswer.trim())) {
+                req.setAttribute("error", "Security question or answer is incorrect.");
+                req.getRequestDispatcher("/forgot_password.jsp").forward(req, resp);
+                return;
+            }
+
+            HttpSession session = req.getSession();
+            session.setAttribute("resetPasswordEmail", email);
+            resp.sendRedirect(req.getContextPath() + "/auth/reset-password");
+
+        } catch (Exception e) {
+            req.setAttribute("error", "An error occurred during verification.");
+            req.getRequestDispatcher("/forgot_password.jsp").forward(req, resp);
+        }
+    }
+
+    private void handleUpdatePassword(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        HttpSession session = req.getSession(false);
+        String email = (session != null) ? (String) session.getAttribute("resetPasswordEmail") : null;
+
+        if (email == null) {
+            resp.sendRedirect(req.getContextPath() + "/auth/forgot-password");
+            return;
+        }
+
+        String newPassword = req.getParameter("newPassword");
+        
+        try {
+            User user = userService.getUserByEmail(email);
+            if (user != null) {
+                user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+                
+                // Save updated user to database
+                try (org.hibernate.Session dbSession = com.coursevault.hibernate.HibernateUtil.getSessionFactory().openSession()) {
+                    dbSession.beginTransaction();
+                    dbSession.merge(user);
+                    dbSession.getTransaction().commit();
+                }
+
+                session.removeAttribute("resetPasswordEmail");
+                resp.sendRedirect(req.getContextPath() + "/auth/login?success=password_reset");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/auth/login");
+            }
+        } catch (Exception e) {
+            req.setAttribute("error", "Failed to update password.");
+            req.getRequestDispatcher("/reset_password.jsp").forward(req, resp);
+        }
     }
 }

@@ -41,7 +41,13 @@ public class SubjectServlet extends HttpServlet {
         } else if (path.equals("/view")) {
             handleView(req, resp);
         } else if (path.equals("/delete")) {
-            handleDelete(req, resp);
+            if (user != null && ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole()))) {
+                handleDelete(req, resp);
+            } else resp.sendRedirect(req.getContextPath() + "/auth/login");
+        } else if (path.equals("/resource/delete")) {
+            if (user != null && ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole()))) {
+                handleResourceDelete(req, resp, user);
+            } else resp.sendRedirect(req.getContextPath() + "/auth/login");
         }
     }
 
@@ -156,5 +162,26 @@ public class SubjectServlet extends HttpServlet {
             subjectService.deleteSubject(Long.parseLong(idStr));
         }
         resp.sendRedirect(req.getContextPath() + "/subjects/");
+    }
+
+    private void handleResourceDelete(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
+        String idStr = req.getParameter("id");
+        if (idStr != null) {
+            long resourceId = Long.parseLong(idStr);
+            Resource res = ResourceService.getInstance().getResourceById(resourceId);
+            if (res != null) {
+                // Ensure only ADMIN or the teacher who uploaded it can delete it. Admin can delete anything.
+                if ("ADMIN".equals(user.getRole()) || (res.getUploadedBy() != null && res.getUploadedBy().getId() == user.getId())) {
+                    ResourceService.getInstance().deleteResource(resourceId);
+                }
+            }
+        }
+        
+        String referer = req.getHeader("Referer");
+        if (referer != null && !referer.isEmpty()) {
+            resp.sendRedirect(referer);
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/subjects/");
+        }
     }
 }
