@@ -201,7 +201,7 @@
                                                 <i class="fas fa-download"></i>
                                                 Download
                                             </a>
-                                            <c:if test="${user.role eq 'ADMIN' or (user.role eq 'TEACHER' and (not empty res.uploadedBy and res.uploadedBy.id eq user.id))}">
+                                            <c:if test="${user.role eq 'ADMIN' or (user.role eq 'TEACHER' and (not empty res.uploader and res.uploader.id eq user.id))}">
                                                 <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${res.id}"
                                                    class="btn-download"
                                                    style="background: #FEE2E2; color: #DC2626; border: none; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);"

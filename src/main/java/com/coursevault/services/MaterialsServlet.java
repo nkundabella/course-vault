@@ -29,6 +29,9 @@ public class MaterialsServlet extends HttpServlet {
             if ("ADMIN".equals(user.getRole())) {
                 List<Resource> resources = resourceService.getAllResources();
                 req.setAttribute("resources", resources);
+            } else if ("TEACHER".equals(user.getRole())) {
+                List<Resource> resources = resourceService.getResourcesByUploader(user.getId());
+                req.setAttribute("resources", resources);
             } else {
                 List<Bookmark> bookmarks = resourceService.getBookmarksByUser(user.getId());
                 req.setAttribute("bookmarks", bookmarks);

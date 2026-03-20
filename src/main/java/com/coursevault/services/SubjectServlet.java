@@ -171,7 +171,7 @@ public class SubjectServlet extends HttpServlet {
             Resource res = ResourceService.getInstance().getResourceById(resourceId);
             if (res != null) {
                 // Ensure only ADMIN or the teacher who uploaded it can delete it. Admin can delete anything.
-                if ("ADMIN".equals(user.getRole()) || (res.getUploadedBy() != null && res.getUploadedBy().getId() == user.getId())) {
+                if ("ADMIN".equals(user.getRole()) || (res.getUploader() != null && res.getUploader().getId() == user.getId())) {
                     ResourceService.getInstance().deleteResource(resourceId);
                 }
             }
