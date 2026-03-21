@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js" type="module"></script>
     <style>
         .dashboard-grid {
             display: grid;
@@ -18,29 +19,34 @@
         }
 
         .welcome-banner {
-            background: linear-gradient(135deg, #F8C697 0%, #A68B5B 100%);
+            background: #FAF9F6;
             padding: 3rem;
             border-radius: 30px;
             color: #333;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(166, 139, 91, 0.2);
+            border: 1px solid #F3F4F6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
             margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .welcome-banner h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 800;
             margin: 0;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: #A68B5B;
         }
 
         .welcome-banner p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-            color: #fff;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 0.8rem;
+            color: #6B7280;
+            max-width: 500px;
+            line-height: 1.6;
         }
 
         .stats-grid {
@@ -180,10 +186,11 @@
     <main class="main-viewport">
         <div class="welcome-banner">
             <div style="position: relative; z-index: 2;">
-                <h1>Hello, ${user.fullName}!</h1>
-                <p>Welcome back to your academic vault. Here's what's happening today.</p>
+                <h1>Hello, ${user.fullName}</h1>
+                <p>Welcome back to your academic vault! We've organized everything so you can focus on mastering your subjects today.</p>
+                <a href="${pageContext.request.contextPath}/subjects/" class="btn-event" style="display:inline-block; margin-top: 1.5rem; color: #A68B5B; text-decoration: none; font-weight: 700; border-bottom: 2px solid #A68B5B; padding-bottom: 4px;">Explore Materials →</a>
             </div>
-            <i class="fas fa-graduation-cap" style="position:absolute; right: -20px; bottom: -20px; font-size: 15rem; color: rgba(255,255,255,0.1); transform: rotate(-15deg);"></i>
+            <dotlottie-wc src="https://lottie.host/b4eed0cc-9e97-4523-8aa5-200e16dbb71a/P9xki3TI09.lottie" style="width: 280px; height: 280px" autoplay loop></dotlottie-wc>
         </div>
 
         <div class="stats-grid">
