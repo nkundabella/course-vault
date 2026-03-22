@@ -55,6 +55,14 @@ public class UserService {
         }
     }
 
+    public void updateUser(User user) {
+        try (Session sesh = getSfb().openSession()) {
+            sesh.beginTransaction();
+            sesh.merge(user);
+            sesh.getTransaction().commit();
+        }
+    }
+
     public void updateUserRole(long userId, String newRole) {
         try (Session sesh = getSfb().openSession()) {
             sesh.beginTransaction();

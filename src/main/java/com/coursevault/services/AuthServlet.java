@@ -1,5 +1,6 @@
 package com.coursevault.services;
 
+import com.coursevault.model.SystemConfig;
 import com.coursevault.model.User;
 import com.coursevault.util.InputSanitizer;
 import jakarta.servlet.ServletException;
@@ -198,38 +199,26 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    private ConfigService configService = ConfigService.getInstance();
+
     private void handleBootstrapSMTP(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String host = req.getParameter("smtpHost");
         String port = req.getParameter("smtpPort");
         String user = req.getParameter("smtpUser");
         String pass = req.getParameter("smtpPass");
 
+        SystemConfig config = configService.getConfig();
+        config.setSmtpHost(host);
+        config.setSmtpPort(port);
+        config.setSmtpUser(user);
+        config.setSmtpPass(pass);
+
+        configService.updateConfig(config);
+        
+        // Also update the active mail service
         mailService.configure(host, port, user, pass);
-
-        // Persist to Database
-        try (org.hibernate.Session sesh = com.coursevault.hibernate.HibernateUtil.getSessionFactory().openSession()) {
-            sesh.beginTransaction();
-            com.coursevault.model.SystemConfig config = sesh.createQuery("from SystemConfig", com.coursevault.model.SystemConfig.class)
-                    .setMaxResults(1)
-                    .uniqueResult();
-            
-            if (config == null) {
-                config = new com.coursevault.model.SystemConfig();
-            }
-            
-            config.setSmtpHost(host);
-            config.setSmtpPort(port);
-            config.setSmtpUser(user);
-            config.setSmtpPass(pass);
-            
-            sesh.merge(config);
-            sesh.getTransaction().commit();
-            System.out.println("[AuthServlet] SystemConfig persisted to database.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("[AuthServlet] Failed to persist SystemConfig: " + e.getMessage());
-        }
-
+        
+        System.out.println("[AuthServlet] SMTP Bootstrap successful and persisted.");
         resp.sendRedirect(req.getContextPath() + "/auth/login?smtp=configured");
     }
 
