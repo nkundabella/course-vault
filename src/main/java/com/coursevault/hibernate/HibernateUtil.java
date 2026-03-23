@@ -12,8 +12,6 @@ public class HibernateUtil {
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             Configuration configuration = new Configuration();
-            
-            // Load from properties file if exists
             java.util.Properties props = new java.util.Properties();
             try (java.io.InputStream is = HibernateUtil.class.getClassLoader().getResourceAsStream("db.properties")) {
                 if (is != null) {
@@ -24,7 +22,6 @@ public class HibernateUtil {
                 System.err.println("Note: Could not load db.properties: " + e.getMessage());
             }
 
-            // Database connection settings
             String dbUser = System.getenv("DB_USER");
             if (dbUser == null) dbUser = props.getProperty("db.user", "root");
 
@@ -65,15 +62,14 @@ public class HibernateUtil {
                 System.err.println("ROOT CAUSE: " + root.getClass().getName() + ": " + root.getMessage());
                 
                 if (root.getMessage().contains("Access denied")) {
-                    System.err.println("ADVICE: Check your MySQL username/password in HibernateUtil.java");
+                    System.err.println("Check your MySQL username/password in HibernateUtil.java");
                 } else if (root.getMessage().contains("Communications link failure")) {
-                    System.err.println("ADVICE: Is XAMPP/MySQL running? Ensure MySQL is started.");
+                    System.err.println("Is XAMPP/MySQL running? Ensure MySQL is started.");
                 } else if (root.getMessage().contains("Unknown database")) {
-                    System.err.println("ADVICE: Create the 'coursevault' database in phpMyAdmin.");
+                    System.err.println("Create the 'course_vault' database in MySQL");
                 }
                 System.err.println("*******************************************************************");
-                
-                // Re-throw with more detail so it shows up in error.jsp
+
                 throw new RuntimeException("Database Error: " + root.getMessage(), e);
             }
         }

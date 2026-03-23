@@ -35,7 +35,6 @@ public class NavigationServlet extends HttpServlet {
         System.out.println("[NavigationServlet] Path: " + servletPath + ", User: " + (user != null ? user.getEmail() : "null"));
 
         if (servletPath.equals("/dashboard")) {
-            // Fetch Dashboard Data
             try {
                 System.out.println("[NavigationServlet] Fetching stats...");
                 List<Subject> subjects = subjectService.getAllSubjects();
@@ -161,8 +160,7 @@ public class NavigationServlet extends HttpServlet {
         }
 
         configService.updateConfig(config);
-        
-        // Also update the active mail service
+
         MailService.getInstance().configure(config.getSmtpHost(), config.getSmtpPort(), config.getSmtpUser(), config.getSmtpPass());
         
         resp.sendRedirect(req.getContextPath() + "/settings?success=smtp");

@@ -28,7 +28,7 @@ public class Resource {
 
     private int year;
     private int term;
-    private String type; // NOTES or PAST_PAPER
+    private String type; // are they NOTES or PAST_PAPER
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
