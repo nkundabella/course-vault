@@ -305,7 +305,11 @@
                                     <input type="hidden" name="action" value="updateSecurity">
                                     <div class="form-group">
                                         <label>Security Question</label>
-                                        <input type="text" name="securityQuestion" value="${user.securityQuestion}">
+                                        <select name="securityQuestion" required style="width: 100%; padding: 0.9rem 1.2rem; border: 1px solid #E5E7EB; border-radius: 12px; outline: none; transition: 0.3s; background: white;">
+                                            <option value="Who is your favorite teacher?" ${user.securityQuestion eq 'Who is your favorite teacher?' ? 'selected' : ''}>Who is your favorite teacher?</option>
+                                            <option value="What is your pet's name?" ${user.securityQuestion eq 'What is your pet\'s name?' ? 'selected' : ''}>What is your pet's name?</option>
+                                            <option value="What city were you born in?" ${user.securityQuestion eq 'What city were you born in?' ? 'selected' : ''}>What city were you born in?</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label>Your Answer</label>

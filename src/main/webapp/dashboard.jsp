@@ -34,14 +34,14 @@
         }
 
         .welcome-banner h1 {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             font-weight: 800;
             margin: 0;
             color: #A68B5B;
         }
 
         .welcome-banner p {
-            font-size: 1.2rem;
+            font-size: 1rem;
             opacity: 0.8;
             margin-top: 0.8rem;
             color: #6B7280;
