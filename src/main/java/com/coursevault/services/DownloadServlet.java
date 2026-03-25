@@ -88,7 +88,7 @@ public class DownloadServlet extends HttpServlet {
         
         // Prevent browsers from showing "Open/Save" dialog automatically for common viewable types
         if ("view".equalsIgnoreCase(req.getParameter("mode"))) {
-            resp.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; style-src 'unsafe-inline';");
+            // No strict CSP here to allow built-in viewers if needed
         }
 
         String mode = req.getParameter("mode");

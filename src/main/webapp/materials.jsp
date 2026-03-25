@@ -14,6 +14,8 @@
             <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap"
                 rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
             <style>
                 .materials-grid {
                     display: grid;
@@ -147,10 +149,11 @@
                                         <p>Year ${r.year} | ${r.type}</p>
                                         <div class="card-actions">
                                             <c:set var="lowPath" value="${fn:toLowerCase(r.filePath)}" />
-                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
                                                 <button class="btn-action btn-view js-preview-btn" 
                                                         data-url="${pageContext.request.contextPath}/download/${r.filePath}?mode=view"
-                                                        data-title="${r.title}">View</button>
+                                                        data-title="${r.title}"
+                                                        data-filename="${r.filePath}">View</button>
                                             </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${r.filePath}"
                                                 class="btn-action btn-dl">Download</a>
@@ -175,10 +178,11 @@
                                         <p>Year ${b.resource.year} | ${b.resource.type}</p>
                                         <div class="card-actions">
                                             <c:set var="lowPath" value="${fn:toLowerCase(b.resource.filePath)}" />
-                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
                                                 <button class="btn-action btn-view js-preview-btn" 
                                                         data-url="${pageContext.request.contextPath}/download/${b.resource.filePath}?mode=view"
-                                                        data-title="${b.resource.title}">View</button>
+                                                        data-title="${b.resource.title}"
+                                                        data-filename="${b.resource.filePath}">View</button>
                                             </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${b.resource.filePath}"
                                                 class="btn-action btn-dl">Download</a>
@@ -214,8 +218,10 @@
                             <h2 id="previewTitle">Resource Preview</h2>
                             <button onclick="closePreview()" class="close-btn">&times;</button>
                         </div>
-                        <div class="modal-body">
-                            <iframe id="previewFrame" src="" frameborder="0"></iframe>
+                        <div class="modal-body" id="previewBody">
+                            <iframe id="previewFrame" src="" frameborder="0" style="display:none;"></iframe>
+                            <div id="pdfViewer" style="display:none; height:100%; overflow:auto; background:#525659; padding:20px; display: flex; flex-direction: column; align-items: center; gap: 20px;"></div>
+                            <div id="docxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:40px;"></div>
                         </div>
                     </div>
                 </div>
@@ -259,15 +265,90 @@
                 </style>
 
                 <script>
-                    function previewResource(url, title) {
+                    function previewResource(url, title, filename) {
                         document.getElementById('previewTitle').textContent = title;
-                        document.getElementById('previewFrame').src = url;
+                        const ext = filename.split('.').pop().toLowerCase();
+                        
+                        // Hide all viewers
+                        const viewers = ['previewFrame', 'pdfViewer', 'docxViewer'];
+                        viewers.forEach(v => document.getElementById(v).style.display = 'none');
+                        document.getElementById('pdfViewer').innerHTML = '';
+                        document.getElementById('docxViewer').innerHTML = '';
+
+                        if (ext === 'pdf') {
+                            showPdf(url);
+                        } else if (ext === 'docx' || ext === 'doc') {
+                            showDocx(url);
+                        } else if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+                            const frame = document.getElementById('previewFrame');
+                            frame.src = url;
+                            frame.style.display = 'block';
+                        } else {
+                            // Default to iframe
+                            const frame = document.getElementById('previewFrame');
+                            frame.src = url;
+                            frame.style.display = 'block';
+                        }
+
                         document.getElementById('previewModal').style.display = 'flex';
                         document.body.style.overflow = 'hidden';
                     }
+
+                    async function showPdf(url) {
+                        const viewer = document.getElementById('pdfViewer');
+                        viewer.style.display = 'flex';
+                        viewer.innerHTML = '<div style="color:white;">Loading PDF...</div>';
+                        
+                        try {
+                            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                            
+                            const loadingTask = pdfjsLib.getDocument(url);
+                            const pdf = await loadingTask.promise;
+                            viewer.innerHTML = '';
+
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const canvas = document.createElement('canvas');
+                                canvas.style.marginBottom = '20px';
+                                canvas.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                                viewer.appendChild(canvas);
+
+                                const viewport = page.getViewport({ scale: 1.5 });
+                                const context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+
+                                await page.render({
+                                    canvasContext: context,
+                                    viewport: viewport
+                                }).promise;
+                            }
+                        } catch (err) {
+                            viewer.innerHTML = '<div style="color:red; padding:20px;">Error loading PDF: ' + err.message + '</div>';
+                        }
+                    }
+
+                    async function showDocx(url) {
+                        const viewer = document.getElementById('docxViewer');
+                        viewer.style.display = 'block';
+                        viewer.innerHTML = 'Loading document...';
+
+                        try {
+                            const response = await fetch(url);
+                            const arrayBuffer = await response.arrayBuffer();
+                            const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+                            viewer.innerHTML = result.value;
+                        } catch (err) {
+                            viewer.innerHTML = '<div style="color:red;">Error loading document: ' + err.message + '</div>';
+                        }
+                    }
+
                     function closePreview() {
                         document.getElementById('previewModal').style.display = 'none';
                         document.getElementById('previewFrame').src = '';
+                        document.getElementById('pdfViewer').innerHTML = '';
+                        document.getElementById('docxViewer').innerHTML = '';
                         document.body.style.overflow = 'auto';
                     }
 
@@ -275,7 +356,7 @@
                     document.addEventListener('DOMContentLoaded', () => {
                         document.querySelectorAll('.js-preview-btn').forEach(btn => {
                             btn.addEventListener('click', function() {
-                                previewResource(this.dataset.url, this.dataset.title);
+                                previewResource(this.dataset.url, this.dataset.title, this.dataset.filename);
                             });
                         });
                     });
