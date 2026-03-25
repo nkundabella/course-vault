@@ -16,6 +16,7 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
             <style>
                 .materials-grid {
                     display: grid;
@@ -149,7 +150,7 @@
                                         <p>Year ${r.year} | ${r.type}</p>
                                         <div class="card-actions">
                                             <c:set var="lowPath" value="${fn:toLowerCase(r.filePath)}" />
-                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg') || fn:endsWith(lowPath, '.xlsx') || fn:endsWith(lowPath, '.xls') || fn:endsWith(lowPath, '.csv') || fn:endsWith(lowPath, '.pptx')}">
                                                 <button class="btn-action btn-view js-preview-btn" 
                                                         data-url="${pageContext.request.contextPath}/download/${r.filePath}?mode=view"
                                                         data-title="${r.title}"
@@ -178,7 +179,7 @@
                                         <p>Year ${b.resource.year} | ${b.resource.type}</p>
                                         <div class="card-actions">
                                             <c:set var="lowPath" value="${fn:toLowerCase(b.resource.filePath)}" />
-                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg')}">
+                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg') || fn:endsWith(lowPath, '.xlsx') || fn:endsWith(lowPath, '.xls') || fn:endsWith(lowPath, '.csv') || fn:endsWith(lowPath, '.pptx')}">
                                                 <button class="btn-action btn-view js-preview-btn" 
                                                         data-url="${pageContext.request.contextPath}/download/${b.resource.filePath}?mode=view"
                                                         data-title="${b.resource.title}"
@@ -222,6 +223,7 @@
                             <iframe id="previewFrame" src="" frameborder="0" style="display:none;"></iframe>
                             <div id="pdfViewer" style="display:none; height:100%; overflow:auto; background:#525659; padding:20px; display: flex; flex-direction: column; align-items: center; gap: 20px;"></div>
                             <div id="docxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:40px;"></div>
+                            <div id="xlsxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:20px;"></div>
                         </div>
                     </div>
                 </div>
@@ -260,8 +262,43 @@
                         align-items: center;
                     }
                     .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: #666; }
-                    .modal-body { flex-grow: 1; }
+                    .modal-body { flex-grow: 1; overflow: hidden; position: relative; }
                     #previewFrame { width: 100%; height: 100%; }
+
+                    /* Premium Viewer Styles */
+                    #docxViewer, #xlsxViewer {
+                        font-family: 'Outfit', sans-serif;
+                        line-height: 1.6;
+                        color: #374151;
+                    }
+                    #xlsxViewer table {
+                        border-collapse: separate;
+                        border-spacing: 0;
+                        width: 100%;
+                        border: 1px solid #F3F4F6;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        margin-top: 10px;
+                    }
+                    #xlsxViewer th {
+                        background: #FAF9F6;
+                        padding: 12px 15px;
+                        font-weight: 700;
+                        color: #A68B5B;
+                        border-bottom: 2px solid #F3F4F6;
+                    }
+                    #xlsxViewer td {
+                        padding: 10px 15px;
+                        border-bottom: 1px solid #F9FAFB;
+                        background: white;
+                    }
+                    #xlsxViewer tr:last-child td { border-bottom: none; }
+                    
+                    .tab-btn.active {
+                        background: #A68B5B !important;
+                        color: white !important;
+                        box-shadow: 0 4px 12px rgba(166, 139, 91, 0.2);
+                    }
                 </style>
 
                 <script>
@@ -270,15 +307,20 @@
                         const ext = filename.split('.').pop().toLowerCase();
                         
                         // Hide all viewers
-                        const viewers = ['previewFrame', 'pdfViewer', 'docxViewer'];
+                        const viewers = ['previewFrame', 'pdfViewer', 'docxViewer', 'xlsxViewer'];
                         viewers.forEach(v => document.getElementById(v).style.display = 'none');
                         document.getElementById('pdfViewer').innerHTML = '';
                         document.getElementById('docxViewer').innerHTML = '';
+                        document.getElementById('xlsxViewer').innerHTML = '';
 
                         if (ext === 'pdf') {
                             showPdf(url);
                         } else if (ext === 'docx' || ext === 'doc') {
                             showDocx(url);
+                        } else if (['xlsx', 'xls', 'csv'].includes(ext)) {
+                            showXlsx(url);
+                        } else if (ext === 'pptx') {
+                            showPptx(url);
                         } else if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
                             const frame = document.getElementById('previewFrame');
                             frame.src = url;
@@ -292,6 +334,54 @@
 
                         document.getElementById('previewModal').style.display = 'flex';
                         document.body.style.overflow = 'hidden';
+                    }
+
+                    async function showXlsx(url) {
+                        const viewer = document.getElementById('xlsxViewer');
+                        viewer.style.display = 'block';
+                        viewer.innerHTML = 'Loading spreadsheet...';
+
+                        try {
+                            const response = await fetch(url);
+                            const arrayBuffer = await response.arrayBuffer();
+                            const data = new Uint8Array(arrayBuffer);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            
+                            let html = '<div class="sheet-tabs" style="margin-bottom:15px; display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;">';
+                            workbook.SheetNames.forEach((name, i) => {
+                                html += `<button onclick="switchSheet('${i}')" class="tab-btn ${i===0?'active':''}" style="padding:6px 15px; border-radius:15px; border:1px solid #ddd; background:white; color:#333; cursor:pointer; font-weight:600; font-size:0.85rem; transition:0.3s; white-space:nowrap;">${name}</button>`;
+                            });
+                            html += '</div>';
+
+                            workbook.SheetNames.forEach((name, i) => {
+                                const sheet = workbook.Sheets[name];
+                                const sheetHtml = XLSX.utils.sheet_to_html(sheet);
+                                html += `<div id="sheet-${i}" class="sheet-content" style="display:${i===0?'block':'none'}; overflow:auto; max-width:100%; border-radius:12px;"><style>table{border-collapse:collapse; width:100%;} th,td{border:1px solid #eee; padding:8px; text-align:left;}</style>${sheetHtml}</div>`;
+                            });
+                            
+                            viewer.innerHTML = html;
+                            window.switchSheet = (index) => {
+                                document.querySelectorAll('.sheet-content').forEach(s => s.style.display = 'none');
+                                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                                document.getElementById('sheet-'+index).style.display = 'block';
+                                document.querySelectorAll('.tab-btn')[index].classList.add('active');
+                            };
+                        } catch (err) {
+                            viewer.innerHTML = '<div style="color:red;">Error loading spreadsheet: ' + err.message + '</div>';
+                        }
+                    }
+
+                    function showPptx(url) {
+                        const viewer = document.getElementById('docxViewer'); // Reuse docx for now
+                        viewer.style.display = 'block';
+                        viewer.innerHTML = `
+                            <div style="text-align:center; padding:50px;">
+                                <i class="fas fa-file-powerpoint" style="font-size:4rem; color:#D24726; margin-bottom:20px;"></i>
+                                <h3>PowerPoint Preview</h3>
+                                <p>For the best experience with PowerPoint files, please download the resource.</p>
+                                <a href="${url.replace('mode=view', 'mode=download')}" class="btn-download" style="display:inline-block; margin-top:20px; padding: 10px 20px; background: #F8C697; color: #333; text-decoration: none; border-radius: 12px; font-weight: 700;">Download PPTX</a>
+                            </div>
+                        `;
                     }
 
                     async function showPdf(url) {
@@ -349,6 +439,7 @@
                         document.getElementById('previewFrame').src = '';
                         document.getElementById('pdfViewer').innerHTML = '';
                         document.getElementById('docxViewer').innerHTML = '';
+                        document.getElementById('xlsxViewer').innerHTML = '';
                         document.body.style.overflow = 'auto';
                     }
 
