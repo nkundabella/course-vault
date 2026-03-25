@@ -64,6 +64,8 @@ public class SubjectServlet extends HttpServlet {
 
         if (path != null && path.equals("/add")) {
             handleAdd(req, resp);
+        } else if (path != null && path.equals("/resource/edit")) {
+            handleResourceEdit(req, resp, user);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -163,6 +165,45 @@ public class SubjectServlet extends HttpServlet {
             subjectService.deleteSubject(Long.parseLong(idStr));
         }
         resp.sendRedirect(req.getContextPath() + "/subjects/");
+    }
+
+    private void handleResourceEdit(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
+        String idStr = req.getParameter("resourceId");
+        if (idStr == null) {
+            resp.sendRedirect(req.getContextPath() + "/subjects/");
+            return;
+        }
+
+        long resourceId = Long.parseLong(idStr);
+        Resource res = ResourceService.getInstance().getResourceById(resourceId);
+        if (res == null) {
+            resp.sendRedirect(req.getContextPath() + "/subjects/");
+            return;
+        }
+
+        if (!"ADMIN".equals(user.getRole()) && !"TEACHER".equals(user.getRole())) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        String title = InputSanitizer.cleanText(req.getParameter("title"), 200);
+        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1990, 2100, 2023);
+        int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
+        String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
+
+        res.setTitle(title);
+        res.setYear(year);
+        res.setTerm(term);
+        res.setType(type);
+
+        ResourceService.getInstance().updateResource(res);
+
+        String referer = req.getHeader("Referer");
+        if (referer != null && !referer.isEmpty()) {
+            resp.sendRedirect(referer);
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/subjects/");
+        }
     }
 
     private void handleResourceDelete(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {

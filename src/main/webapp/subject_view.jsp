@@ -200,6 +200,14 @@
                                                     View
                                                 </button>
                                             </c:if>
+                                            <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
+                                                <button class="btn-download" 
+                                                        onclick="openEditModal('${res.id}', '${res.title}', '${res.year}', '${res.term}', '${res.type}')"
+                                                        style="background: #FFF7ED; color: #EA580C; border:none; cursor:pointer;">
+                                                    <i class="fas fa-edit"></i>
+                                                    Edit
+                                                </button>
+                                            </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${res.filePath}"
                                                 class="btn-download">
                                                 <i class="fas fa-download"></i>
@@ -242,6 +250,61 @@
                             <div id="pdfViewer" style="display:none; height:100%; overflow:auto; background:#525659; padding:20px; display: flex; flex-direction: column; align-items: center; gap: 20px;"></div>
                             <div id="docxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:40px;"></div>
                             <div id="xlsxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:20px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Resource Modal -->
+                <div id="editModal" class="preview-modal" style="display: none;">
+                    <div class="modal-content" style="width: 450px; height: auto; max-height: 90vh;">
+                        <div class="modal-header">
+                            <h2>Edit Resource</h2>
+                            <button onclick="closeEditModal()" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 2rem;">
+                            <form action="${pageContext.request.contextPath}/subjects/resource/edit" method="POST">
+                                <input type="hidden" id="editResourceId" name="resourceId">
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Title</label>
+                                    <input type="text" id="editTitle" name="title" required 
+                                           style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+                                    <div class="form-group">
+                                        <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Year</label>
+                                        <input type="number" id="editYear" name="year" required min="1" max="5" 
+                                               style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Term</label>
+                                        <select id="editTerm" name="term" required 
+                                                style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                            <option value="1">Term 1</option>
+                                            <option value="2">Term 2</option>
+                                            <option value="3">Term 3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 2rem;">
+                                    <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Type</label>
+                                    <select id="editType" name="type" required 
+                                            style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                        <option value="Lecture Note">Lecture Note</option>
+                                        <option value="Assignment">Assignment</option>
+                                        <option value="Past Paper">Past Paper</option>
+                                        <option value="Textbook">Textbook</option>
+                                        <option value="Reference">Reference</option>
+                                        <option value="Video">Video</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div style="display:flex; gap:1rem;">
+                                    <button type="button" onclick="closeEditModal()" 
+                                            style="flex:1; padding:1rem; border:1px solid #E5E7EB; border-radius:12px; background:white; cursor:pointer; font-weight:600;">Cancel</button>
+                                    <button type="submit" 
+                                            style="flex:2; padding:1rem; border:none; border-radius:12px; background:#A68B5B; color:white; cursor:pointer; font-weight:700;">Save Changes</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -320,6 +383,21 @@
                 </style>
 
                 <script>
+                    function openEditModal(id, title, year, term, type) {
+                        document.getElementById('editResourceId').value = id;
+                        document.getElementById('editTitle').value = title;
+                        document.getElementById('editYear').value = year;
+                        document.getElementById('editTerm').value = term;
+                        document.getElementById('editType').value = type;
+                        document.getElementById('editModal').style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeEditModal() {
+                        document.getElementById('editModal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+
                     function previewResource(url, title, filename) {
                         document.getElementById('previewTitle').textContent = title;
                         const ext = filename.split('.').pop().toLowerCase();
