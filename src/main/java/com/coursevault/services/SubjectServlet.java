@@ -46,7 +46,7 @@ public class SubjectServlet extends HttpServlet {
                 handleDelete(req, resp);
             } else resp.sendRedirect(req.getContextPath() + "/auth/login");
         } else if (path.equals("/resource/delete")) {
-            if (user != null && ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole()))) {
+            if (user != null && "TEACHER".equals(user.getRole())) {
                 handleResourceDelete(req, resp, user);
             } else resp.sendRedirect(req.getContextPath() + "/auth/login");
         }
@@ -171,8 +171,8 @@ public class SubjectServlet extends HttpServlet {
             long resourceId = Long.parseLong(idStr);
             Resource res = ResourceService.getInstance().getResourceById(resourceId);
             if (res != null) {
-                // Ensure only ADMIN or the teacher who uploaded it can delete it. Admin can delete anything.
-                if ("ADMIN".equals(user.getRole()) || (res.getUploader() != null && res.getUploader().getId() == user.getId())) {
+                // Ensure only TEACHER can delete it.
+                if ("TEACHER".equals(user.getRole())) {
                     ResourceService.getInstance().deleteResource(resourceId);
                 }
             }

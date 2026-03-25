@@ -42,8 +42,16 @@ public class ResourceService {
             sesh.beginTransaction();
             Resource resource = sesh.get(Resource.class, id);
             if (resource != null) {
+                // Delete associated bookmarks first
+                sesh.createQuery("delete from Bookmark where resource.id = :rId")
+                    .setParameter("rId", id)
+                    .executeUpdate();
+
+                // Delete the file from the filesystem correctly
                 if (resource.getFilePath() != null) {
-                    java.io.File file = new java.io.File(resource.getFilePath());
+                    String userHome = System.getProperty("user.home");
+                    String uploadPath = userHome + java.io.File.separator + "CourseVaultUploads";
+                    java.io.File file = new java.io.File(uploadPath + java.io.File.separator + resource.getFilePath());
                     if (file.exists()) {
                         file.delete();
                     }
