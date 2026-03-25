@@ -181,8 +181,8 @@ public class SubjectServlet extends HttpServlet {
             return;
         }
 
-        if (!"ADMIN".equals(user.getRole()) && !"TEACHER".equals(user.getRole())) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+        if (res.getUploader() == null || res.getUploader().getId() != user.getId()) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You can only edit resources you uploaded.");
             return;
         }
 
@@ -212,10 +212,11 @@ public class SubjectServlet extends HttpServlet {
             long resourceId = Long.parseLong(idStr);
             Resource res = ResourceService.getInstance().getResourceById(resourceId);
             if (res != null) {
-                // Ensure only TEACHER can delete it.
-                if ("TEACHER".equals(user.getRole())) {
-                    ResourceService.getInstance().deleteResource(resourceId);
+                if (res.getUploader() == null || res.getUploader().getId() != user.getId()) {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You can only delete resources you uploaded.");
+                    return;
                 }
+                ResourceService.getInstance().deleteResource(resourceId);
             }
         }
         

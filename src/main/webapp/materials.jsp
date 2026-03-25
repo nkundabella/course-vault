@@ -156,15 +156,17 @@
                                                         data-title="${r.title}"
                                                         data-filename="${r.filePath}">View</button>
                                             </c:if>
-                                            <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
+                                             <c:if test="${r.uploader.id eq user.id}">
                                                 <button class="btn-action" onclick="openEditModal('${r.id}', '${r.title}', '${r.year}', '${r.term}', '${r.type}')" 
                                                         style="background: #FFF7ED; color: #EA580C; border:none; cursor:pointer;">Edit</button>
-                                            </c:if>
-                                            <a href="${pageContext.request.contextPath}/download/${r.filePath}"
-                                                class="btn-action btn-dl">Download</a>
-                                            <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${r.id}"
-                                                class="btn-action" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;" 
-                                                onclick="return confirm('Delete this resource permanently?');">Delete</a>
+                                             </c:if>
+                                             <a href="${pageContext.request.contextPath}/download/${r.filePath}"
+                                                 class="btn-action btn-dl">Download</a>
+                                             <c:if test="${r.uploader.id eq user.id}">
+                                                <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${r.id}"
+                                                    class="btn-action" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;" 
+                                                    onclick="return confirm('Are you sure you want to delete this resource permanently?');">Delete</a>
+                                             </c:if>
                                         </div>
                                     </div>
                                 </c:forEach>
@@ -189,10 +191,10 @@
                                                         data-title="${b.resource.title}"
                                                         data-filename="${b.resource.filePath}">View</button>
                                             </c:if>
-                                            <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
-                                                <button class="btn-action" onclick="openEditModal('${b.resource.id}', '${b.resource.title}', '${b.resource.year}', '${b.resource.term}', '${b.resource.type}')" 
-                                                        style="background: #FFF7ED; color: #EA580C; border:none; cursor:pointer;">Edit</button>
-                                            </c:if>
+                                             <c:if test="${b.resource.uploader.id eq user.id}">
+                                                 <button class="btn-action" onclick="openEditModal('${b.resource.id}', '${b.resource.title}', '${b.resource.year}', '${b.resource.term}', '${b.resource.type}')" 
+                                                         style="background: #FFF7ED; color: #EA580C; border:none; cursor:pointer;">Edit</button>
+                                             </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${b.resource.filePath}"
                                                 class="btn-action btn-dl">Download</a>
                                         </div>

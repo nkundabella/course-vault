@@ -230,7 +230,7 @@
                                                 <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                                     <a href="${pageContext.request.contextPath}/subjects/delete?id=${s.id}"
                                                         style="color: #ffbaba;" title="Delete"
-                                                        onclick="event.stopPropagation()">
+                                                        onclick="event.stopPropagation(); return confirm('Are you sure you want to delete this subject? All associated resources will be permanently removed.')">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
                                                 </c:if>

@@ -190,7 +190,7 @@
                                         </div>
                                         <div class="resource-actions" style="display: flex; gap: 0.8rem;">
                                             <c:set var="lowPath" value="${fn:toLowerCase(res.filePath)}" />
-                                            <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg') || fn:endsWith(lowPath, '.xlsx') || fn:endsWith(lowPath, '.xls') || fn:endsWith(lowPath, '.csv') || fn:endsWith(lowPath, '.pptx')}">
+                                             <c:if test="${fn:endsWith(lowPath, '.pdf') || fn:endsWith(lowPath, '.docx') || fn:endsWith(lowPath, '.doc') || fn:endsWith(lowPath, '.txt') || fn:endsWith(lowPath, '.png') || fn:endsWith(lowPath, '.jpg') || fn:endsWith(lowPath, '.jpeg') || fn:endsWith(lowPath, '.xlsx') || fn:endsWith(lowPath, '.xls') || fn:endsWith(lowPath, '.csv') || fn:endsWith(lowPath, '.pptx')}">
                                                 <button class="btn-download js-preview-btn" 
                                                         data-url="${pageContext.request.contextPath}/download/${res.filePath}?mode=view"
                                                         data-title="${res.title}"
@@ -200,7 +200,7 @@
                                                     View
                                                 </button>
                                             </c:if>
-                                            <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
+                                            <c:if test="${res.uploader.id eq user.id}">
                                                 <button class="btn-download" 
                                                         onclick="openEditModal('${res.id}', '${res.title}', '${res.year}', '${res.term}', '${res.type}')"
                                                         style="background: #FFF7ED; color: #EA580C; border:none; cursor:pointer;">
@@ -213,11 +213,10 @@
                                                 <i class="fas fa-download"></i>
                                                 Download
                                             </a>
-                                            <c:if test="${user.role eq 'ADMIN' or (user.role eq 'TEACHER' and (not empty res.uploader and res.uploader.id eq user.id))}">
+                                            <c:if test="${res.uploader.id eq user.id}">
                                                 <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${res.id}"
-                                                   class="btn-download"
-                                                   style="background: #FEE2E2; color: #DC2626; border: none; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);"
-                                                   onclick="return confirm('Are you sure you want to delete this resource permanently?');">
+                                                    class="btn-download" style="background: #FEE2E2; color: #DC2626;"
+                                                    onclick="return confirm('Are you sure you want to delete this resource? This action cannot be undone.')">
                                                     <i class="fas fa-trash-alt"></i>
                                                     Delete
                                                 </a>
@@ -227,13 +226,6 @@
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <div
-                                    style="text-align: center; padding: 4rem; background: rgba(255,255,255,0.5); border-radius: 20px; border: 2px dashed #A68B5B;">
-                                    <i class="fas fa-ghost"
-                                        style="font-size: 3rem; color: #A68B5B; margin-bottom: 1rem;"></i>
-                                    <p>No resources have been uploaded for this subject yet.</p>
-                                </div>
-                            </c:otherwise>
                         </c:choose>
                     </div>
                 </main>
