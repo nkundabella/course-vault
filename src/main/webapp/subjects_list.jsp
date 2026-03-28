@@ -309,11 +309,15 @@
                             <div style="display: flex; gap: 1rem;">
                                 <div class="form-group" style="flex: 1;">
                                     <label>Year</label>
-                                    <input type="number" name="year" value="2023" required>
+                                    <select name="year" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                        <option value="1">Year 1</option>
+                                        <option value="2">Year 2</option>
+                                        <option value="3">Year 3</option>
+                                    </select>
                                 </div>
                                 <div class="form-group" style="flex: 1;">
                                     <label>Term</label>
-                                    <select name="term" required>
+                                    <select name="term" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
                                         <option value="1">Term 1</option>
                                         <option value="2">Term 2</option>
                                         <option value="3">Term 3</option>
@@ -321,9 +325,10 @@
                                 </div>
                                 <div class="form-group" style="flex: 1;">
                                     <label>Type</label>
-                                    <select name="type" required>
+                                    <select name="type" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
                                         <option value="NOTES">Notes</option>
                                         <option value="PAST_PAPER">Past Paper</option>
+                                        <option value="GROUP_PRESENTATION">Group Presentation</option>
                                     </select>
                                 </div>
                             </div>

@@ -125,4 +125,14 @@ public class ResourceService {
             return sesh.createQuery("from Resource", Resource.class).list();
         }
     }
+
+    public Resource getResourceByHash(String hash) {
+        if (hash == null) return null;
+        try (Session sesh = getSfb().openSession()) {
+            return sesh.createQuery("from Resource where fileHash = :hash", Resource.class)
+                    .setParameter("hash", hash)
+                    .setMaxResults(1)
+                    .uniqueResult();
+        }
+    }
 }

@@ -211,19 +211,15 @@
                                 <option value="1">Year 1</option>
                                 <option value="2">Year 2</option>
                                 <option value="3">Year 3</option>
-                                <option value="4">Year 4</option>
-                                <option value="5">Year 5</option>
                             </select>
                         </div>
                         <div class="filter-group">
                             <label>Type</label>
                             <select id="typeFilter" class="filter-control">
                                 <option value="all">All Types</option>
-                                <option value="LECTURE NOTE">Lecture Note</option>
-                                <option value="ASSIGNMENT">Assignment</option>
-                                <option value="PAST PAPER">Past Paper</option>
-                                <option value="TEXTBOOK">Textbook</option>
-                                <option value="REFERENCE">Reference</option>
+                                <option value="NOTES">Lecture Note</option>
+                                <option value="PAST_PAPER">Past Paper</option>
+                                <option value="GROUP_PRESENTATION">Group Presentation</option>
                                 <option value="OTHER">Other</option>
                             </select>
                         </div>
@@ -362,8 +358,12 @@
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
                                     <div class="form-group">
                                         <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Year</label>
-                                        <input type="number" id="editYear" name="year" required min="1" max="5" 
+                                        <select id="editYear" name="year" required 
                                                style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                            <option value="1">Year 1</option>
+                                            <option value="2">Year 2</option>
+                                            <option value="3">Year 3</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Term</label>
@@ -379,13 +379,10 @@
                                     <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Type</label>
                                     <select id="editType" name="type" required 
                                             style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
-                                        <option value="Lecture Note">Lecture Note</option>
-                                        <option value="Assignment">Assignment</option>
-                                        <option value="Past Paper">Past Paper</option>
-                                        <option value="Textbook">Textbook</option>
-                                        <option value="Reference">Reference</option>
-                                        <option value="Video">Video</option>
-                                        <option value="Other">Other</option>
+                                        <option value="NOTES">Lecture Note</option>
+                                        <option value="PAST_PAPER">Past Paper</option>
+                                        <option value="GROUP_PRESENTATION">Group Presentation</option>
+                                        <option value="OTHER">Other</option>
                                     </select>
                                 </div>
                                 <div style="display:flex; gap:1rem;">

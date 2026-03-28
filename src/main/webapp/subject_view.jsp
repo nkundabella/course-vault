@@ -215,7 +215,32 @@
                             <h1 style="font-weight: 800; margin: 0;">${subject.name}</h1>
                             <p style="color: #6B7280; margin: 0.3rem 0 0 0;">${subject.description}</p>
                         </div>
+                        <div style="margin-left: auto;">
+                             <button class="add-resource-btn" onclick="openAddResourceModal()">
+                                <i class="fas fa-plus-circle"></i> Add Resource
+                             </button>
+                        </div>
                     </div>
+
+                    <style>
+                        .add-resource-btn {
+                            background: #A68B5B;
+                            color: white;
+                            border: none;
+                            padding: 0.8rem 1.5rem;
+                            border-radius: 12px;
+                            font-weight: 700;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            transition: 0.3s;
+                        }
+                        .add-resource-btn:hover {
+                            background: #8e764d;
+                            transform: scale(1.02);
+                        }
+                    </style>
 
                     <!-- Filter Bar -->
                     <div class="filter-bar animate__animated animate__fadeIn">
@@ -230,8 +255,6 @@
                                 <option value="1">Year 1</option>
                                 <option value="2">Year 2</option>
                                 <option value="3">Year 3</option>
-                                <option value="4">Year 4</option>
-                                <option value="5">Year 5</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -247,11 +270,9 @@
                             <label>Type</label>
                             <select id="typeFilter" class="filter-control">
                                 <option value="all">All Types</option>
-                                <option value="LECTURE NOTE">Lecture Note</option>
-                                <option value="ASSIGNMENT">Assignment</option>
-                                <option value="PAST PAPER">Past Paper</option>
-                                <option value="TEXTBOOK">Textbook</option>
-                                <option value="REFERENCE">Reference</option>
+                                <option value="NOTES">Lecture Note</option>
+                                <option value="PAST_PAPER">Past Paper</option>
+                                <option value="GROUP_PRESENTATION">Group Presentation</option>
                                 <option value="OTHER">Other</option>
                             </select>
                         </div>
@@ -392,13 +413,10 @@
                                     <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Type</label>
                                     <select id="editType" name="type" required 
                                             style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
-                                        <option value="Lecture Note">Lecture Note</option>
-                                        <option value="Assignment">Assignment</option>
-                                        <option value="Past Paper">Past Paper</option>
-                                        <option value="Textbook">Textbook</option>
-                                        <option value="Reference">Reference</option>
-                                        <option value="Video">Video</option>
-                                        <option value="Other">Other</option>
+                                        <option value="NOTES">Lecture Note</option>
+                                        <option value="PAST_PAPER">Past Paper</option>
+                                        <option value="GROUP_PRESENTATION">Group Presentation</option>
+                                        <option value="OTHER">Other</option>
                                     </select>
                                 </div>
                                 <div style="display:flex; gap:1rem;">
@@ -406,6 +424,74 @@
                                             style="flex:1; padding:1rem; border:1px solid #E5E7EB; border-radius:12px; background:white; cursor:pointer; font-weight:600;">Cancel</button>
                                     <button type="submit" 
                                             style="flex:2; padding:1rem; border:none; border-radius:12px; background:#A68B5B; color:white; cursor:pointer; font-weight:700;">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Resource Modal -->
+                <div id="addResourceModal" class="modal-overlay" style="display: none;">
+                    <div class="modal-content" style="width: 450px; height: auto; max-height: 90vh;">
+                        <div class="modal-header">
+                            <h2>Add New Resource</h2>
+                            <button onclick="closeAddResourceModal()" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 2rem;">
+                            <form action="${pageContext.request.contextPath}/subjects/resource/add" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="subjectId" value="${subject.id}">
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Title</label>
+                                    <input type="text" name="title" required placeholder="Resource Title"
+                                           style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+                                    <div class="form-group">
+                                        <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Year</label>
+                                        <select name="year" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                            <option value="1">Year 1</option>
+                                            <option value="2">Year 2</option>
+                                            <option value="3">Year 3</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Term</label>
+                                        <select name="term" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                            <option value="1">Term 1</option>
+                                            <option value="2">Term 2</option>
+                                            <option value="3">Term 3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Resource Type</label>
+                                    <c:choose>
+                                        <c:when test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
+                                            <select name="type" required style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
+                                                <option value="NOTES">Lecture Note</option>
+                                                <option value="PAST_PAPER">Past Paper</option>
+                                                <option value="GROUP_PRESENTATION">Group Presentation</option>
+                                                <option value="OTHER">Other</option>
+                                            </select>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div style="display:flex; align-items:center; gap:0.5rem; padding:0.8rem; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:12px;">
+                                                <i class="fas fa-users" style="color:#A68B5B;"></i>
+                                                <span style="font-weight:600; color:#374151;">Group Presentation</span>
+                                            </div>
+                                            <input type="hidden" name="type" value="GROUP_PRESENTATION">
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 2rem;">
+                                    <label style="display:block; margin-bottom:0.5rem; font-weight:600;">File</label>
+                                    <input type="file" name="file" required style="width:100%; padding:0.5rem;">
+                                </div>
+                                <div style="display:flex; gap:1rem;">
+                                    <button type="button" onclick="closeAddResourceModal()" 
+                                            style="flex:1; padding:1rem; border:1px solid #E5E7EB; border-radius:12px; background:white; cursor:pointer; font-weight:600;">Cancel</button>
+                                    <button type="submit" 
+                                            style="flex:2; padding:1rem; border:none; border-radius:12px; background:#A68B5B; color:white; cursor:pointer; font-weight:700;">Upload Resource</button>
                                 </div>
                             </form>
                         </div>
@@ -498,6 +584,16 @@
 
                     function closeEditModal() {
                         document.getElementById('editModal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+
+                    function openAddResourceModal() {
+                        document.getElementById('addResourceModal').style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeAddResourceModal() {
+                        document.getElementById('addResourceModal').style.display = 'none';
                         document.body.style.overflow = 'auto';
                     }
 

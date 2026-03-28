@@ -57,14 +57,25 @@ public class SubjectServlet extends HttpServlet {
         String path = req.getPathInfo();
         HttpSession session = req.getSession(false);
         User user = (User) session.getAttribute("user");
-        if (user == null || (!user.getRole().equals("ADMIN") && !user.getRole().equals("TEACHER"))) {
+        if (user == null || (!user.getRole().equals("ADMIN") && !user.getRole().equals("TEACHER") && !user.getRole().equals("STUDENT"))) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
         if (path != null && path.equals("/add")) {
+            if (!user.getRole().equals("ADMIN") && !user.getRole().equals("TEACHER")) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Only teachers can create subjects.");
+                return;
+            }
             handleAdd(req, resp);
+        } else if (path != null && path.equals("/resource/add")) {
+            handleResourceAdd(req, resp, user);
         } else if (path != null && path.equals("/resource/edit")) {
+            if (!user.getRole().equals("ADMIN") && !user.getRole().equals("TEACHER")) {
+                 // Students might edit their own group presentations? 
+                 // User said "editing is only done by the one that uploaded it".
+                 // So we can let them edit if they are the uploader.
+            }
             handleResourceEdit(req, resp, user);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -77,7 +88,7 @@ public class SubjectServlet extends HttpServlet {
         String description = InputSanitizer.cleanText(req.getParameter("description"), 500);
 
         String title = InputSanitizer.cleanText(req.getParameter("resourceTitle"), 200);
-        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1990, 2100, 2023);
+        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1, 3, 1);
         int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
         String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
 
@@ -105,6 +116,15 @@ public class SubjectServlet extends HttpServlet {
         String absoluteFilePath = uploadPath + File.separator + savedFileName;
         filePart.write(absoluteFilePath);
 
+        String fileHash = calculateFileHash(filePart);
+        Resource existing = ResourceService.getInstance().getResourceByHash(fileHash);
+        if (existing != null) {
+            // Delete the file we just saved to save space
+            new File(absoluteFilePath).delete();
+            resp.sendError(HttpServletResponse.SC_CONFLICT, "This resource already exists in Course-Vault (Title: " + existing.getTitle() + " in " + existing.getSubject().getName() + "). Redundancy is not allowed!");
+            return;
+        }
+
         // Reuse existing subject if one with the same name already exists
         Subject subject = subjectService.getSubjectByName(name);
         if (subject == null) {
@@ -126,6 +146,7 @@ public class SubjectServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         resource.setUploader(user);
+        resource.setFileHash(fileHash);
 
         ResourceService.getInstance().addResource(resource);
 
@@ -187,7 +208,7 @@ public class SubjectServlet extends HttpServlet {
         }
 
         String title = InputSanitizer.cleanText(req.getParameter("title"), 200);
-        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1990, 2100, 2023);
+        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1, 3, 1);
         int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
         String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
 
@@ -225,6 +246,85 @@ public class SubjectServlet extends HttpServlet {
             resp.sendRedirect(referer);
         } else {
             resp.sendRedirect(req.getContextPath() + "/subjects/");
+        }
+    }
+
+    private void handleResourceAdd(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException, ServletException {
+        long subjectId = Long.parseLong(req.getParameter("subjectId"));
+        Subject subject = subjectService.getSubjectById(subjectId);
+        if (subject == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Subject not found.");
+            return;
+        }
+
+        String title = InputSanitizer.cleanText(req.getParameter("title"), 200);
+        int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1, 3, 1);
+        int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
+        String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
+
+        // Enforcement: Students can ONLY upload Group Presentations
+        if ("STUDENT".equals(user.getRole()) && !"GROUP_PRESENTATION".equals(type)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Students can only upload Group Presentations.");
+            return;
+        }
+
+        Part filePart = req.getPart("file");
+        if (filePart == null || filePart.getSize() <= 0) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "File is required.");
+            return;
+        }
+
+        String originalFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String fileName = originalFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String savedFileName = System.currentTimeMillis() + "_" + fileName;
+
+        String userHome = System.getProperty("user.home");
+        String uploadPath = userHome + File.separator + "CourseVaultUploads";
+        String absoluteFilePath = uploadPath + File.separator + savedFileName;
+        filePart.write(absoluteFilePath);
+
+        String fileHash = calculateFileHash(filePart);
+        Resource existing = ResourceService.getInstance().getResourceByHash(fileHash);
+        if (existing != null) {
+            new File(absoluteFilePath).delete();
+            resp.sendError(HttpServletResponse.SC_CONFLICT, "This file already exists in Course-Vault.");
+            return;
+        }
+
+        Resource res = new Resource();
+        res.setTitle(title);
+        res.setFilePath(savedFileName);
+        res.setYear(year);
+        res.setTerm(term);
+        res.setType(type);
+        res.setSubject(subject);
+        res.setUploader(user);
+        res.setFileHash(fileHash);
+
+        ResourceService.getInstance().addResource(res);
+        resp.sendRedirect(req.getContextPath() + "/subjects/view?id=" + subjectId);
+    }
+
+    private String calculateFileHash(Part filePart) throws IOException {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            try (java.io.InputStream is = filePart.getInputStream()) {
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = is.read(buffer)) != -1) {
+                    digest.update(buffer, 0, read);
+                }
+            }
+            byte[] hashBytes = digest.digest();
+            java.util.Formatter formatter = new java.util.Formatter();
+            for (byte b : hashBytes) {
+                formatter.format("%02x", b);
+            }
+            String result = formatter.toString();
+            formatter.close();
+            return result;
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 }

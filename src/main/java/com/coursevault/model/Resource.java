@@ -38,6 +38,9 @@ public class Resource {
     @JoinColumn(name = "uploader_id")
     private User uploader;
 
+    @Column(unique = false)
+    private String fileHash;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -61,4 +64,7 @@ public class Resource {
 
     public User getUploader() { return uploader; }
     public void setUploader(User uploader) { this.uploader = uploader; }
+
+    public String getFileHash() { return fileHash; }
+    public void setFileHash(String fileHash) { this.fileHash = fileHash; }
 }
