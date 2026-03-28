@@ -110,6 +110,63 @@
                     background: #F8C697;
                     color: #333;
                 }
+
+                /* Filter Bar Styles */
+                .filter-bar {
+                    background: white;
+                    padding: 1.2rem;
+                    border-radius: 20px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                    align-items: center;
+                    margin-bottom: 2rem;
+                    border: 1px solid #F3F4F6;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+                }
+
+                .filter-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.8rem;
+                    flex: 1;
+                    min-width: 180px;
+                }
+
+                .filter-group label {
+                    font-weight: 700;
+                    font-size: 0.8rem;
+                    color: #374151;
+                    white-space: nowrap;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .filter-control {
+                    width: 100%;
+                    padding: 0.6rem 0.8rem;
+                    border: 1px solid #E5E7EB;
+                    border-radius: 10px;
+                    outline: none;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.85rem;
+                    transition: 0.3s;
+                    background: #F9FAFB;
+                }
+
+                .filter-control:focus {
+                    border-color: #F8C697;
+                    background: white;
+                }
+
+                .filter-results-info {
+                    margin-bottom: 1rem;
+                    font-size: 0.85rem;
+                    color: #6B7280;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
             </style>
         </head>
 
@@ -118,10 +175,7 @@
                 <main class="main-viewport">
                     <input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
                     <header class="header-top">
-                        <div class="search-bar">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Search your materials...">
-                        </div>
+                        <div style="flex: 1;"></div>
                         <div class="user-profile">
                             <span>${user.fullName} (${user.role eq 'PENDING_TEACHER' ? 'Pending Teacher' : user.role})</span>
                             <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
@@ -138,11 +192,59 @@
                         </p>
                     </header>
 
+                    <!-- Filter Bar -->
+                    <div class="filter-bar animate__animated animate__fadeIn">
+                        <div class="filter-group" style="flex: 1.5;">
+                            <label><i class="fas fa-search"></i></label>
+                            <input type="text" id="searchInput" class="filter-control" placeholder="Search by title...">
+                        </div>
+                        <div class="filter-group">
+                            <label>Subject</label>
+                            <select id="subjectFilter" class="filter-control">
+                                <option value="all">All Subjects</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Year</label>
+                            <select id="yearFilter" class="filter-control">
+                                <option value="all">All Years</option>
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                                <option value="5">Year 5</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Type</label>
+                            <select id="typeFilter" class="filter-control">
+                                <option value="all">All Types</option>
+                                <option value="LECTURE NOTE">Lecture Note</option>
+                                <option value="ASSIGNMENT">Assignment</option>
+                                <option value="PAST PAPER">Past Paper</option>
+                                <option value="TEXTBOOK">Textbook</option>
+                                <option value="REFERENCE">Reference</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-results-info">
+                        <span id="resultsCount">Loading materials...</span>
+                        <button onclick="resetFilters()" style="background:none; border:none; color:#A68B5B; cursor:pointer; font-weight:700; font-size:0.8rem;">
+                            <i class="fas fa-undo"></i> Reset Filters
+                        </button>
+                    </div>
+
                     <div class="materials-grid">
                         <c:choose>
                             <c:when test="${(user.role.toUpperCase().trim() eq 'ADMIN' or user.role.toUpperCase().trim() eq 'TEACHER') && not empty resources}">
                                 <c:forEach items="${resources}" var="r">
-                                    <div class="material-card animate__animated animate__fadeInUp">
+                                    <div class="material-card animate__animated animate__fadeInUp"
+                                         data-title="${fn:toLowerCase(r.title)}" 
+                                         data-subject="${r.subject.name}" 
+                                         data-year="${r.year}" 
+                                         data-type="${fn:toUpperCase(r.type)}">
                                         <div class="card-header">
                                             <span class="subject-tag">${r.subject.name}</span>
                                         </div>
@@ -173,7 +275,11 @@
                             </c:when>
                             <c:when test="${(user.role.toUpperCase().trim() ne 'ADMIN' and user.role.toUpperCase().trim() ne 'TEACHER') && not empty bookmarks}">
                                 <c:forEach items="${bookmarks}" var="b">
-                                    <div class="material-card animate__animated animate__fadeInUp">
+                                    <div class="material-card animate__animated animate__fadeInUp"
+                                         data-title="${fn:toLowerCase(b.resource.title)}" 
+                                         data-subject="${b.resource.subject.name}" 
+                                         data-year="${b.resource.year}" 
+                                         data-type="${fn:toUpperCase(b.resource.type)}">
                                         <div class="card-header">
                                             <span class="subject-tag">${b.resource.subject.name}</span>
                                             <a href="${pageContext.request.contextPath}/materials/toggle-bookmark?resourceId=${b.resource.id}"
@@ -381,6 +487,77 @@
                         document.getElementById('editModal').style.display = 'none';
                         document.body.style.overflow = 'auto';
                     }
+
+                    // Filtering Logic
+                    const searchInput = document.getElementById('searchInput');
+                    const subjectFilter = document.getElementById('subjectFilter');
+                    const yearFilter = document.getElementById('yearFilter');
+                    const typeFilter = document.getElementById('typeFilter');
+                    const materialCards = document.querySelectorAll('.material-card');
+                    const resultsCount = document.getElementById('resultsCount');
+
+                    // Populate Subjects from cards
+                    function populateSubjects() {
+                        const subjects = new Set();
+                        materialCards.forEach(card => {
+                            subjects.add(card.getAttribute('data-subject'));
+                        });
+                        
+                        const sortedSubjects = Array.from(subjects).sort();
+                        sortedSubjects.forEach(subject => {
+                            const option = document.createElement('option');
+                            option.value = subject;
+                            option.textContent = subject;
+                            subjectFilter.appendChild(option);
+                        });
+                    }
+
+                    function filterMaterials() {
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const subject = subjectFilter.value;
+                        const year = yearFilter.value;
+                        const type = typeFilter.value;
+
+                        let visibleCount = 0;
+
+                        materialCards.forEach(card => {
+                            const cardTitle = card.getAttribute('data-title');
+                            const cardSubject = card.getAttribute('data-subject');
+                            const cardYear = card.getAttribute('data-year');
+                            const cardType = card.getAttribute('data-type');
+
+                            const matchesSearch = cardTitle.includes(searchTerm);
+                            const matchesSubject = subject === 'all' || cardSubject === subject;
+                            const matchesYear = year === 'all' || cardYear === year;
+                            const matchesType = type === 'all' || cardType === type;
+
+                            if (matchesSearch && matchesSubject && matchesYear && matchesType) {
+                                card.style.display = 'flex';
+                                visibleCount++;
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        resultsCount.textContent = `Showing ${visibleCount} of ${materialCards.length} matching resources`;
+                    }
+
+                    function resetFilters() {
+                        searchInput.value = '';
+                        subjectFilter.value = 'all';
+                        yearFilter.value = 'all';
+                        typeFilter.value = 'all';
+                        filterMaterials();
+                    }
+
+                    searchInput.addEventListener('input', filterMaterials);
+                    subjectFilter.addEventListener('change', filterMaterials);
+                    yearFilter.addEventListener('change', filterMaterials);
+                    typeFilter.addEventListener('change', filterMaterials);
+
+                    // Initialize
+                    populateSubjects();
+                    filterMaterials();
 
                     function previewResource(url, title, filename) {
                         document.getElementById('previewTitle').textContent = title;

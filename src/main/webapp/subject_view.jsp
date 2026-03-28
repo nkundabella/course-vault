@@ -133,6 +133,66 @@
                 .bookmark-toggle.active {
                     color: #F8C697;
                 }
+
+                /* Filter Bar Styles */
+                .filter-bar {
+                    background: white;
+                    padding: 1.2rem;
+                    border-radius: 20px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                    align-items: center;
+                    margin-bottom: 2rem;
+                    border: 1px solid #F3F4F6;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+                }
+
+                .filter-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.8rem;
+                    flex: 1;
+                    min-width: 200px;
+                }
+
+                .filter-group label {
+                    font-weight: 700;
+                    font-size: 0.85rem;
+                    color: #374151;
+                    white-space: nowrap;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .filter-control {
+                    width: 100%;
+                    padding: 0.7rem 1rem;
+                    border: 1px solid #E5E7EB;
+                    border-radius: 12px;
+                    outline: none;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.9rem;
+                    transition: 0.3s;
+                    background: #F9FAFB;
+                }
+
+                .filter-control:focus {
+                    border-color: #F8C697;
+                    background: white;
+                    box-shadow: 0 0 0 4px rgba(248, 198, 151, 0.1);
+                }
+
+                .filter-results-info {
+                    width: 100%;
+                    margin-bottom: 1rem;
+                    font-size: 0.9rem;
+                    color: #6B7280;
+                    font-weight: 500;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
             </style>
         </head>
 
@@ -157,11 +217,62 @@
                         </div>
                     </div>
 
+                    <!-- Filter Bar -->
+                    <div class="filter-bar animate__animated animate__fadeIn">
+                        <div class="filter-group" style="flex: 2;">
+                            <label><i class="fas fa-search"></i> Search</label>
+                            <input type="text" id="searchInput" class="filter-control" placeholder="Search by title...">
+                        </div>
+                        <div class="filter-group">
+                            <label>Year</label>
+                            <select id="yearFilter" class="filter-control">
+                                <option value="all">All Years</option>
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                                <option value="5">Year 5</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Term</label>
+                            <select id="termFilter" class="filter-control">
+                                <option value="all">All Terms</option>
+                                <option value="1">Term 1</option>
+                                <option value="2">Term 2</option>
+                                <option value="3">Term 3</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Type</label>
+                            <select id="typeFilter" class="filter-control">
+                                <option value="all">All Types</option>
+                                <option value="LECTURE NOTE">Lecture Note</option>
+                                <option value="ASSIGNMENT">Assignment</option>
+                                <option value="PAST PAPER">Past Paper</option>
+                                <option value="TEXTBOOK">Textbook</option>
+                                <option value="REFERENCE">Reference</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-results-info">
+                        <span id="resultsCount">Showing all ${fn:length(subject.resources)} resources</span>
+                        <button onclick="resetFilters()" style="background:none; border:none; color:#A68B5B; cursor:pointer; font-weight:700; font-size:0.85rem;">
+                            <i class="fas fa-undo"></i> Reset Filters
+                        </button>
+                    </div>
+
                     <div class="resource-list">
                         <c:choose>
                             <c:when test="${not empty subject.resources}">
                                 <c:forEach items="${subject.resources}" var="res">
-                                    <div class="resource-item animate__animated animate__fadeInUp">
+                                    <div class="resource-item animate__animated animate__fadeInUp" 
+                                         data-title="${fn:toLowerCase(res.title)}" 
+                                         data-year="${res.year}" 
+                                         data-term="${res.term}" 
+                                         data-type="${fn:toUpperCase(res.type)}">
                                         <div class="resource-info">
                                             <div class="resource-icon">
                                                 <i
@@ -389,6 +500,57 @@
                         document.getElementById('editModal').style.display = 'none';
                         document.body.style.overflow = 'auto';
                     }
+
+                    // Filtering Logic
+                    const searchInput = document.getElementById('searchInput');
+                    const yearFilter = document.getElementById('yearFilter');
+                    const termFilter = document.getElementById('termFilter');
+                    const typeFilter = document.getElementById('typeFilter');
+                    const resourceItems = document.querySelectorAll('.resource-item');
+                    const resultsCount = document.getElementById('resultsCount');
+
+                    function filterResources() {
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const year = yearFilter.value;
+                        const term = termFilter.value;
+                        const type = typeFilter.value;
+
+                        let visibleCount = 0;
+
+                        resourceItems.forEach(item => {
+                            const itemTitle = item.getAttribute('data-title');
+                            const itemYear = item.getAttribute('data-year');
+                            const itemTerm = item.getAttribute('data-term');
+                            const itemType = item.getAttribute('data-type');
+
+                            const matchesSearch = itemTitle.includes(searchTerm);
+                            const matchesYear = year === 'all' || itemYear === year;
+                            const matchesTerm = term === 'all' || itemTerm === term;
+                            const matchesType = type === 'all' || itemType === type;
+
+                            if (matchesSearch && matchesYear && matchesTerm && matchesType) {
+                                item.style.display = 'flex';
+                                visibleCount++;
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+
+                        resultsCount.textContent = `Showing ${visibleCount} of ${resourceItems.length} resources`;
+                    }
+
+                    function resetFilters() {
+                        searchInput.value = '';
+                        yearFilter.value = 'all';
+                        termFilter.value = 'all';
+                        typeFilter.value = 'all';
+                        filterResources();
+                    }
+
+                    searchInput.addEventListener('input', filterResources);
+                    yearFilter.addEventListener('change', filterResources);
+                    termFilter.addEventListener('change', filterResources);
+                    typeFilter.addEventListener('change', filterResources);
 
                     function previewResource(url, title, filename) {
                         document.getElementById('previewTitle').textContent = title;
