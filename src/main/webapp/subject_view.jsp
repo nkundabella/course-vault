@@ -198,7 +198,6 @@
 
         <body>
             <%@ include file="/WEB-INF/jspf/sidebar.jspf" %>
-            <input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
 
                 <main class="main-viewport">
                     <a href="${pageContext.request.contextPath}/subjects/" class="back-link">
@@ -215,7 +214,11 @@
                             <h1 style="font-weight: 800; margin: 0;">${subject.name}</h1>
                             <p style="color: #6B7280; margin: 0.3rem 0 0 0;">${subject.description}</p>
                         </div>
-                        <div style="margin-left: auto;">
+                        <div style="margin-left: auto; display: flex; gap: 1rem;">
+                             <button class="btn-share" 
+                                     onclick="copyToClipboard(getBaseUrl() + '/subjects/view?id=${subject.id}', 'Subject link copied!')">
+                                <i class="fas fa-share-alt"></i> Share Folder
+                             </button>
                              <button class="add-resource-btn" onclick="openAddResourceModal()">
                                 <i class="fas fa-plus-circle"></i> Add Resource
                              </button>
@@ -290,6 +293,7 @@
                             <c:when test="${not empty subject.resources}">
                                 <c:forEach items="${subject.resources}" var="res">
                                     <div class="resource-item animate__animated animate__fadeInUp" 
+                                         data-resource-id="${res.id}"
                                          data-title="${fn:toLowerCase(res.title)}" 
                                          data-year="${res.year}" 
                                          data-term="${res.term}" 
@@ -345,6 +349,10 @@
                                                 <i class="fas fa-download"></i>
                                                 Download
                                             </a>
+                                            <button class="btn-share" 
+                                                    onclick="copyToClipboard(getBaseUrl() + '/subjects/view?id=${subject.id}&resourceId=${res.id}', 'Resource link copied!')">
+                                                <i class="fas fa-share-alt"></i> Share
+                                            </button>
                                             <c:if test="${res.uploader.id eq user.id}">
                                                 <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${res.id}"
                                                     class="btn-download" style="background: #FEE2E2; color: #DC2626;"
@@ -597,6 +605,28 @@
                         document.body.style.overflow = 'auto';
                     }
 
+                    // Highlight Shared Resource
+                    window.addEventListener('load', () => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const resId = urlParams.get('resourceId');
+                        if (resId) {
+                            const target = document.querySelector(`.resource-item[data-resource-id="${resId}"]`);
+                            if (target) {
+                                setTimeout(() => {
+                                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    target.style.transition = 'all 0.5s ease';
+                                    target.style.boxShadow = '0 0 0 4px var(--accent-gold)';
+                                    target.style.backgroundColor = '#FFFBEB';
+                                    
+                                    setTimeout(() => {
+                                        target.style.boxShadow = 'var(--shadow-premium)';
+                                        target.style.backgroundColor = 'white';
+                                    }, 4000);
+                                }, 500);
+                            }
+                        }
+                    });
+
                     // Filtering Logic
                     const searchInput = document.getElementById('searchInput');
                     const yearFilter = document.getElementById('yearFilter');
@@ -789,7 +819,7 @@
                         document.body.style.overflow = 'auto';
                     }
                     function toggleStar(el, resourceId) {
-                        const contextPath = document.getElementById('contextPath').value;
+                        const contextPath = "${pageContext.request.contextPath}";
                         fetch(contextPath + '/materials/toggle-bookmark?resourceId=' + resourceId, {
                             headers: { 'X-Requested-With': 'XMLHttpRequest' }
                         }).then(res => {

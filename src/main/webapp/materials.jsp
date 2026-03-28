@@ -173,7 +173,6 @@
         <body>
             <%@ include file="/WEB-INF/jspf/sidebar.jspf" %>
                 <main class="main-viewport">
-                    <input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
                     <header class="header-top">
                         <div style="flex: 1;"></div>
                         <div class="user-profile">
@@ -260,6 +259,11 @@
                                              </c:if>
                                              <a href="${pageContext.request.contextPath}/download/${r.filePath}"
                                                  class="btn-action btn-dl">Download</a>
+                                             <button class="btn-action" 
+                                                     style="background: #F3F4F6; color: #4B5563; border:none; cursor:pointer;"
+                                                     onclick="copyToClipboard(getBaseUrl() + '/subjects/view?id=${r.subject.id}&resourceId=${r.id}', 'Resource link copied!')">
+                                                 Share
+                                             </button>
                                              <c:if test="${r.uploader.id eq user.id}">
                                                 <a href="${pageContext.request.contextPath}/subjects/resource/delete?id=${r.id}"
                                                     class="btn-action" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;" 
@@ -299,6 +303,11 @@
                                              </c:if>
                                             <a href="${pageContext.request.contextPath}/download/${b.resource.filePath}"
                                                 class="btn-action btn-dl">Download</a>
+                                            <button class="btn-action" 
+                                                    style="background: #F3F4F6; color: #4B5563; border:none; cursor:pointer;"
+                                                    onclick="copyToClipboard(getBaseUrl() + '/subjects/view?id=${b.resource.subject.id}&resourceId=${b.resource.id}', 'Resource link copied!')">
+                                                Share
+                                            </button>
                                         </div>
                                     </div>
                                 </c:forEach>

@@ -272,3 +272,56 @@ body {
     background-color: #FEE2E2;
     color: #DC2626;
 }
+
+/* Sharing & Notifications */
+.btn-share {
+    background: #F3F4F6 !important;
+    color: #4B5563 !important;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    font-family: var(--font-main);
+}
+
+.btn-share:hover {
+    background: #E5E7EB !important;
+    color: #1F2937 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2D2D2D;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    z-index: 9999;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    pointer-events: none;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast i {
+    color: #A68B5B;
+    font-size: 1.2rem;
+}

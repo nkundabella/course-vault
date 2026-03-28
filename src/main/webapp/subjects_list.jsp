@@ -227,6 +227,11 @@
                                             </div>
                                             <div class="folder-footer">
                                                 <span>View Content</span>
+                                                <button class="btn-share" 
+                                                        style="background:transparent; color:var(--accent-gold); padding:0; border:none; font-size:0.8rem;"
+                                                        onclick="event.stopPropagation(); copyToClipboard(getBaseUrl() + '/subjects/view?id=${s.id}', 'Subject link copied!')">
+                                                   <i class="fas fa-share-alt"></i> Share
+                                                </button>
                                                 <c:if test="${user.role eq 'ADMIN' or user.role eq 'TEACHER'}">
                                                     <a href="${pageContext.request.contextPath}/subjects/delete?id=${s.id}"
                                                         style="color: #ffbaba;" title="Delete"

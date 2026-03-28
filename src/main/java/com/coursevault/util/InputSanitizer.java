@@ -18,8 +18,11 @@ public class InputSanitizer {
     }
 
     public static String cleanResourceType(String type) {
-        if ("PAST_PAPER".equalsIgnoreCase(type)) return "PAST_PAPER";
-        if ("GROUP_PRESENTATION".equalsIgnoreCase(type)) return "GROUP_PRESENTATION";
+        if (type == null) return "NOTES";
+        String upper = type.toUpperCase();
+        if (upper.equals("PAST_PAPER")) return "PAST_PAPER";
+        if (upper.equals("GROUP_PRESENTATION")) return "GROUP_PRESENTATION";
+        if (upper.equals("OTHER")) return "OTHER";
         return "NOTES";
     }
 

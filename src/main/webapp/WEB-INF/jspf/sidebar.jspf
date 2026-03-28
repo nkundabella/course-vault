@@ -70,3 +70,33 @@
     </div>
 </aside>
 
+<!-- Global Toast Notification -->
+<div id="shareToast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Link copied to clipboard!</span>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('shareToast');
+        const toastMsg = document.getElementById('toastMessage');
+        toastMsg.textContent = message || "Link copied to clipboard!";
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    function copyToClipboard(text, message) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(message);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    function getBaseUrl() {
+        return window.location.origin + "${pageContext.request.contextPath}";
+    }
+</script>
+
