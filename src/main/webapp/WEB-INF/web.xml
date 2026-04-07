@@ -3,9 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
-    <!-- Cloudflare Turnstile site key (public). Secret is read from env TURNSTILE_SECRET_KEY. -->
-    <!-- Default to Cloudflare Turnstile TEST keys so it works on localhost immediately.
-         Replace with your real site key when deploying. -->
     <context-param>
         <param-name>turnstileSiteKey</param-name>
         <param-value>1x00000000000000000000AA</param-value>

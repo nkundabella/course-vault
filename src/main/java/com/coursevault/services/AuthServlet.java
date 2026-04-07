@@ -243,7 +243,7 @@ public class AuthServlet extends HttpServlet {
             user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             
             String assignedRole = "STUDENT";
-            if (userService.getUserCount() == 0 || "superadmin@coursevault.com".equalsIgnoreCase(email) || "nkundaisabellaa@gmail.com".equalsIgnoreCase(email)) {
+            if (userService.getUserCount() == 0) {
                 assignedRole = "ADMIN";
             } else if ("TEACHER".equalsIgnoreCase(requestedRole)) {
                 assignedRole = "PENDING_TEACHER";
@@ -322,16 +322,9 @@ public class AuthServlet extends HttpServlet {
         try {
             User user = userService.getUserByEmail(email);
             if (user != null) {
-                user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
-                
-                // Save updated user to database
-                System.out.println("[AuthServlet] Attempting to update password for " + email);
-                try (org.hibernate.Session dbSession = com.coursevault.hibernate.HibernateUtil.getSessionFactory().openSession()) {
-                    dbSession.beginTransaction();
-                    dbSession.merge(user);
-                    dbSession.getTransaction().commit();
-                    System.out.println("[AuthServlet] Password updated successfully in database.");
-                }
+                String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                userService.updatePassword(user.getId(), hashedPassword);
+                System.out.println("[AuthServlet] Password updated successfully via UserService.");
 
                 session.removeAttribute("resetPasswordEmail");
                 resp.sendRedirect(req.getContextPath() + "/auth/login?success=password_reset");

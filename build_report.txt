@@ -1,0 +1,49 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.coursevault:Course-Vault >--------------------
+[INFO] Building Course-Vault 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ Course-Vault ---
+[INFO] Deleting C:\Users\user\IdeaProjects\resonate\Course-Vault\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ Course-Vault ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ Course-Vault ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 26 source files with javac [debug target 17] to target\classes
+[INFO] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/ResourceService.java: C:\Users\user\IdeaProjects\resonate\Course-Vault\src\main\java\com\coursevault\services\ResourceService.java uses or overrides a deprecated API.
+[INFO] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/ResourceService.java: Recompile with -Xlint:deprecation for details.
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] location of system modules is not set in conjunction with -source 17
+  not setting the location of system modules may lead to class files that cannot run on JDK 17
+    --release 17 is recommended instead of -source 17 -target 17 because it sets the location of system modules automatically
+[INFO] 1 warning
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/SubjectServlet.java:[166,21] variable session is already defined in method handleAdd(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)
+[ERROR] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/SubjectServlet.java:[167,14] variable user is already defined in method handleAdd(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.557 s
+[INFO] Finished at: 2026-03-28T22:40:44+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project Course-Vault: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/SubjectServlet.java:[166,21] variable session is already defined in method handleAdd(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)
+[ERROR] /C:/Users/user/IdeaProjects/resonate/Course-Vault/src/main/java/com/coursevault/services/SubjectServlet.java:[167,14] variable user is already defined in method handleAdd(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

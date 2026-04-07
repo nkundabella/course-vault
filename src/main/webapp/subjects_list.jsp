@@ -334,6 +334,7 @@
                                         <option value="NOTES">Notes</option>
                                         <option value="PAST_PAPER">Past Paper</option>
                                         <option value="GROUP_PRESENTATION">Group Presentation</option>
+                                        <option value="OTHER">Other</option>
                                     </select>
                                 </div>
                             </div>

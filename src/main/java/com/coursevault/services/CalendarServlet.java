@@ -57,7 +57,11 @@ public class CalendarServlet extends HttpServlet {
         if (path != null && path.equals("/add")) {
             try {
                 String title = com.coursevault.util.InputSanitizer.cleanText(req.getParameter("title"), 150);
-                LocalDate date = LocalDate.parse(req.getParameter("date"));
+                String dateStr = req.getParameter("date");
+                if (dateStr == null || dateStr.isEmpty()) {
+                    throw new Exception("Date is required.");
+                }
+                LocalDate date = LocalDate.parse(dateStr);
                 int term = Integer.parseInt(req.getParameter("term"));
                 String category = req.getParameter("category");
                 boolean major = req.getParameter("major") != null;
@@ -73,10 +77,13 @@ public class CalendarServlet extends HttpServlet {
                 event.setUser(user);
 
                 calendarService.addEvent(event);
+                resp.sendRedirect(req.getContextPath() + "/calendar/?success=event_added");
             } catch (Exception e) {
-                e.printStackTrace();
+                req.setAttribute("error", "Failed to add event: " + e.getMessage());
+                List<CalendarEvent> events = calendarService.getAllEvents();
+                req.setAttribute("events", events);
+                req.getRequestDispatcher("/calendar.jsp").forward(req, resp);
             }
-            resp.sendRedirect(req.getContextPath() + "/calendar/");
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

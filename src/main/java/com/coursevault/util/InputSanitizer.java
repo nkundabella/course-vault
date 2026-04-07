@@ -23,6 +23,7 @@ public class InputSanitizer {
         if (upper.equals("PAST_PAPER")) return "PAST_PAPER";
         if (upper.equals("GROUP_PRESENTATION")) return "GROUP_PRESENTATION";
         if (upper.equals("OTHER")) return "OTHER";
+        System.out.println("[InputSanitizer] WARNING: Unknown resource type encountered: " + type + ". Falling back to NOTES.");
         return "NOTES";
     }
 

@@ -40,6 +40,19 @@ public class SubjectService {
             sesh.beginTransaction();
             Subject subject = sesh.get(Subject.class, id);
             if (subject != null) {
+                // Delete physical files for all resources in this subject
+                if (subject.getResources() != null) {
+                    String userHome = System.getProperty("user.home");
+                    String uploadPath = userHome + java.io.File.separator + "CourseVaultUploads";
+                    for (com.coursevault.model.Resource res : subject.getResources()) {
+                        if (res.getFilePath() != null) {
+                            java.io.File file = new java.io.File(uploadPath + java.io.File.separator + res.getFilePath());
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                        }
+                    }
+                }
                 sesh.remove(subject);
             }
             sesh.getTransaction().commit();

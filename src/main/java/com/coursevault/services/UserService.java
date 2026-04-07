@@ -74,4 +74,16 @@ public class UserService {
             sesh.getTransaction().commit();
         }
     }
+
+    public void updatePassword(long userId, String hashedPassword) {
+        try (Session sesh = getSfb().openSession()) {
+            sesh.beginTransaction();
+            User user = sesh.get(User.class, userId);
+            if (user != null) {
+                user.setPassword(hashedPassword);
+                sesh.merge(user);
+            }
+            sesh.getTransaction().commit();
+        }
+    }
 }

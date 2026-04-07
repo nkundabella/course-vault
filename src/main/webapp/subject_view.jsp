@@ -365,7 +365,6 @@
                                     </div>
                                 </c:forEach>
                             </c:when>
-                            <c:otherwise>
                         </c:choose>
                     </div>
                 </main>
@@ -404,7 +403,7 @@
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
                                     <div class="form-group">
                                         <label style="display:block; margin-bottom:0.5rem; font-weight:600;">Year</label>
-                                        <input type="number" id="editYear" name="year" required min="1" max="5" 
+                                        <input type="number" id="editYear" name="year" required min="1" max="3" 
                                                style="width:100%; padding:0.8rem; border:1px solid #E5E7EB; border-radius:12px;">
                                     </div>
                                     <div class="form-group">

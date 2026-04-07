@@ -46,7 +46,7 @@ public class SubjectServlet extends HttpServlet {
                 handleDelete(req, resp);
             } else resp.sendRedirect(req.getContextPath() + "/auth/login");
         } else if (path.equals("/resource/delete")) {
-            if (user != null && "TEACHER".equals(user.getRole())) {
+            if (user != null && ("TEACHER".equals(user.getRole()) || "ADMIN".equals(user.getRole()))) {
                 handleResourceDelete(req, resp, user);
             } else resp.sendRedirect(req.getContextPath() + "/auth/login");
         }
@@ -91,6 +91,26 @@ public class SubjectServlet extends HttpServlet {
         int year = InputSanitizer.parseIntInRange(req.getParameter("year"), 1, 3, 1);
         int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
         String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
+        
+        HttpSession session = req.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        if (user == null) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        // Enforcement: Role-based Resource Type restrictions
+        if ("STUDENT".equals(user.getRole())) {
+            if (!"GROUP_PRESENTATION".equals(type) && !"OTHER".equals(type)) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Students can only upload Group Presentations or Other resources.");
+                return;
+            }
+        } else if ("TEACHER".equals(user.getRole())) {
+             if ("GROUP_PRESENTATION".equals(type)) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Teachers cannot upload Group Presentations. These are for students.");
+                return;
+             }
+        }
 
         Part filePart = req.getPart("file");
         if (filePart == null || filePart.getSize() <= 0) {
@@ -142,9 +162,6 @@ public class SubjectServlet extends HttpServlet {
         resource.setTerm(term);
         resource.setType(type);
         resource.setSubject(subject);
-
-        HttpSession session = req.getSession(false);
-        User user = (session != null) ? (User) session.getAttribute("user") : null;
         resource.setUploader(user);
         resource.setFileHash(fileHash);
 
@@ -233,7 +250,7 @@ public class SubjectServlet extends HttpServlet {
             long resourceId = Long.parseLong(idStr);
             Resource res = ResourceService.getInstance().getResourceById(resourceId);
             if (res != null) {
-                if (res.getUploader() == null || res.getUploader().getId() != user.getId()) {
+                if (!"ADMIN".equals(user.getRole()) && (res.getUploader() == null || res.getUploader().getId() != user.getId())) {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You can only delete resources you uploaded.");
                     return;
                 }
@@ -262,10 +279,17 @@ public class SubjectServlet extends HttpServlet {
         int term = InputSanitizer.parseIntInRange(req.getParameter("term"), 1, 3, 1);
         String type = InputSanitizer.cleanResourceType(req.getParameter("type"));
 
-        // Enforcement: Students can ONLY upload Group Presentations
-        if ("STUDENT".equals(user.getRole()) && !"GROUP_PRESENTATION".equals(type)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Students can only upload Group Presentations.");
-            return;
+        // Enforcement: Role-based Resource Type restrictions
+        if ("STUDENT".equals(user.getRole())) {
+            if (!"GROUP_PRESENTATION".equals(type) && !"OTHER".equals(type)) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Students can only upload Group Presentations or Other resources.");
+                return;
+            }
+        } else if ("TEACHER".equals(user.getRole())) {
+             if ("GROUP_PRESENTATION".equals(type)) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Teachers cannot upload Group Presentations. These are for students.");
+                return;
+             }
         }
 
         Part filePart = req.getPart("file");
