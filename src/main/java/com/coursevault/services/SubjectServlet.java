@@ -125,6 +125,17 @@ public class SubjectServlet extends HttpServlet {
             return;
         }
 
+        String extension = lowerCase.substring(lowerCase.lastIndexOf('.') + 1);
+        try (java.io.InputStream is = filePart.getInputStream()) {
+            if (!com.coursevault.util.FileValidator.isSafeAndValid(is, extension)) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "File signature spoofing detected or invalid document type.");
+                return;
+            }
+        } catch (Exception e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error reading file signature.");
+            return;
+        }
+
         String fileName = originalFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
 
         String userHome = System.getProperty("user.home");
@@ -299,6 +310,24 @@ public class SubjectServlet extends HttpServlet {
         }
 
         String originalFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String lowerCase = originalFileName.toLowerCase();
+
+        if (!lowerCase.matches(".*\\.(pdf|png|jpg|jpeg|docx|doc|pptx|ppt|xlsx|xls|txt|csv)$")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid file type. Only documents and images are allowed.");
+            return;
+        }
+
+        String extension = lowerCase.substring(lowerCase.lastIndexOf('.') + 1);
+        try (java.io.InputStream is = filePart.getInputStream()) {
+            if (!com.coursevault.util.FileValidator.isSafeAndValid(is, extension)) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "File signature spoofing detected or invalid document type.");
+                return;
+            }
+        } catch (Exception e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error reading file signature.");
+            return;
+        }
+
         String fileName = originalFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
         String savedFileName = System.currentTimeMillis() + "_" + fileName;
 
