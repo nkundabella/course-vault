@@ -379,7 +379,7 @@
                         <div class="modal-body" id="previewBody">
                             <iframe id="previewFrame" src="" frameborder="0" style="display:none;"></iframe>
                             <div id="pdfViewer" style="display:none; height:100%; overflow:auto; background:#525659; padding:20px; display: flex; flex-direction: column; align-items: center; gap: 20px;"></div>
-                            <div id="docxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:40px;"></div>
+                            <div id="docxViewer" style="display:none; height:100%; overflow:auto; background:#f0f2f5; padding:40px;"></div>
                             <div id="xlsxViewer" style="display:none; height:100%; overflow:auto; background:white; padding:20px;"></div>
                         </div>
                     </div>
@@ -688,18 +688,16 @@
                         document.getElementById('docxViewer').innerHTML = '';
                         document.getElementById('xlsxViewer').innerHTML = '';
 
-                        if (ext === 'pdf') {
-                            showPdf(url);
+                        if (ext === 'pdf' || ['jpg', 'jpeg', 'png', 'gif', 'txt'].includes(ext)) {
+                            const frame = document.getElementById('previewFrame');
+                            frame.src = url;
+                            frame.style.display = 'block';
                         } else if (ext === 'docx' || ext === 'doc') {
                             showDocx(url);
                         } else if (['xlsx', 'xls', 'csv'].includes(ext)) {
                             showXlsx(url);
                         } else if (ext === 'pptx') {
                             showPptx(url);
-                        } else if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
-                            const frame = document.getElementById('previewFrame');
-                            frame.src = url;
-                            frame.style.display = 'block';
                         } else {
                             // Default to iframe
                             const frame = document.getElementById('previewFrame');
@@ -797,15 +795,16 @@
                     async function showDocx(url) {
                         const viewer = document.getElementById('docxViewer');
                         viewer.style.display = 'block';
-                        viewer.innerHTML = 'Loading document...';
+                        viewer.innerHTML = '<div style="text-align:center; padding:50px;">Loading document...</div>';
 
                         try {
-                            const response = await fetch(url);
+                            const response = await fetch(url, { credentials: 'same-origin' });
+                            if (!response.ok) throw new Error('Failed to fetch document - HTTP ' + response.status);
                             const arrayBuffer = await response.arrayBuffer();
                             const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
-                            viewer.innerHTML = result.value;
+                            viewer.innerHTML = '<div style="background: white; width: 100%; max-width: 850px; min-height: 1100px; padding: 4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto; text-align: left; font-family: Arial, sans-serif;">' + result.value + '</div>';
                         } catch (err) {
-                            viewer.innerHTML = '<div style="color:red;">Error loading document: ' + err.message + '</div>';
+                            viewer.innerHTML = '<div style="color:red; text-align:center; padding:50px;">Error loading document: ' + err.message + '</div>';
                         }
                     }
 

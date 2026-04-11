@@ -43,7 +43,7 @@ public class ResourceService {
             Resource resource = sesh.get(Resource.class, id);
             if (resource != null) {
                 // Delete associated bookmarks first
-                sesh.createQuery("delete from Bookmark where resource.id = :rId")
+                sesh.createMutationQuery("delete from Bookmark where resource.id = :rId")
                     .setParameter("rId", id)
                     .executeUpdate();
 

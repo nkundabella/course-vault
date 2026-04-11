@@ -1,7 +1,6 @@
 package com.coursevault;
 
 import com.coursevault.model.User;
-import com.coursevault.services.UserService;
 import java.util.List;
 
 public class DbCheck {
