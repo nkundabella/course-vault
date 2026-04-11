@@ -11,6 +11,14 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+    <!-- Remember Me / Keep Logged In Configuration -->
+    <session-config>
+        <session-timeout>43200</session-timeout> <!-- 30 days in minutes -->
+        <cookie-config>
+            <max-age>2592000</max-age> <!-- 30 days in seconds -->
+        </cookie-config>
+    </session-config>
+
     <error-page>
         <error-code>404</error-code>
         <location>/error.jsp</location>
