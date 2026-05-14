@@ -13,9 +13,9 @@
 
     <!-- Remember Me / Keep Logged In Configuration -->
     <session-config>
-        <session-timeout>43200</session-timeout> <!-- 30 days in minutes -->
+        <session-timeout>43200</session-timeout>
         <cookie-config>
-            <max-age>2592000</max-age> <!-- 30 days in seconds -->
+            <max-age>2592000</max-age> 
         </cookie-config>
     </session-config>
 
