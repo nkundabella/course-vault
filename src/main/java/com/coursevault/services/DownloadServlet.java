@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import com.coursevault.util.LoggingUtil;
 
 @WebServlet("/download/*")
 public class DownloadServlet extends HttpServlet {
@@ -37,7 +38,12 @@ public class DownloadServlet extends HttpServlet {
         while (normalizedPath.startsWith("/")) {
             normalizedPath = normalizedPath.substring(1);
         }
-
+        // ---------- Security: Path traversal protection ----------
+        if (normalizedPath.contains("..") || normalizedPath.matches("^[a-zA-Z]:.*")) {
+            LoggingUtil.warning("Path traversal attempt: " + normalizedPath);
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid file path.");
+            return;
+        }
         // Handle legacy paths (if database still has "uploads/xxx.pdf")
         if (normalizedPath.startsWith("uploads/")) {
              normalizedPath = normalizedPath.substring(8); // remove "uploads/"
@@ -50,12 +56,12 @@ public class DownloadServlet extends HttpServlet {
         String systemPath = normalizedPath.replace("/", File.separator);
         String fullPath = uploadPath + File.separator + systemPath;
         
-        System.out.println("DEBUG: DownloadServlet - Requested File: " + normalizedPath);
-        System.out.println("DEBUG: DownloadServlet - fullPath to search: " + fullPath);
+        LoggingUtil.info("Requested File: " + normalizedPath);
+        LoggingUtil.info("Full path to search: " + fullPath);
 
         File file = new File(fullPath);
         if (!file.exists()) {
-            System.err.println("ERROR: File not found at: " + fullPath);
+            LoggingUtil.error("File not found at: " + fullPath);
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "The requested resource could not be found. Looked in: " + fullPath);
             return;
         }
@@ -85,6 +91,9 @@ public class DownloadServlet extends HttpServlet {
         // Security and Browser Behavior Headers
         resp.setHeader("X-Content-Type-Options", "nosniff");
         resp.setHeader("Cache-Control", "private, max-age=3600"); // Cache for 1 hour
+        resp.setHeader("X-Frame-Options", "SAMEORIGIN");
+        resp.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'");
+        resp.setHeader("Referrer-Policy", "no-referrer");
         
         // Prevent browsers from showing "Open/Save" dialog automatically for common viewable types
         if ("view".equalsIgnoreCase(req.getParameter("mode"))) {
