@@ -50,7 +50,7 @@ public class CalendarService {
     }
 
     private void seedDefaults() {
-        System.out.println("[CalendarService] No events found. Seeding academic defaults…");
+        LoggingUtil.info("[CalendarService] No events found. Seeding academic defaults…");
         try (Session sesh = getSfb().openSession()) {
             sesh.beginTransaction();
             

@@ -32,11 +32,11 @@ public class NavigationServlet extends HttpServlet {
         }
 
         String servletPath = req.getServletPath();
-        System.out.println("[NavigationServlet] Path: " + servletPath + ", User: " + (user != null ? user.getEmail() : "null"));
+        LoggingUtil.info("[NavigationServlet] Path: " + servletPath + ", User: " + (user != null ? user.getEmail() : "null"));
 
         if (servletPath.equals("/dashboard")) {
             try {
-                System.out.println("[NavigationServlet] Fetching stats...");
+                LoggingUtil.info("[NavigationServlet] Fetching stats...");
                 List<Subject> subjects = subjectService.getAllSubjects();
                 List<Resource> resources = resourceService.getAllResources();
                 List<Bookmark> bookmarks = resourceService.getBookmarksByUser(user.getId());
@@ -46,10 +46,10 @@ public class NavigationServlet extends HttpServlet {
                 req.setAttribute("bookmarkCount", bookmarks.size());
                 req.setAttribute("recentResources", resourceService.getRecentResources(3));
                 
-                System.out.println("[NavigationServlet] Forwarding to dashboard.jsp");
+                LoggingUtil.info("[NavigationServlet] Forwarding to dashboard.jsp");
                 req.getRequestDispatcher("/dashboard.jsp").forward(req, resp);
             } catch (Exception e) {
-                System.err.println("[NavigationServlet] Dashboard Error: " + e.getMessage());
+                LoggingUtil.error("[NavigationServlet] Dashboard Error: " + e.getMessage());
                 e.printStackTrace();
                 throw new ServletException(e);
             }

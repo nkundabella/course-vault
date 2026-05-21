@@ -7,13 +7,13 @@ public class PromoteUser {
     public static void main(String[] args) {
         try {
             String email = "nkundaisabellaa@gmail.com";
-            System.out.println("Promoting " + email + " to ADMIN...");
+            LoggingUtil.info("Promoting " + email + " to ADMIN...");
             User user = UserService.getInstance().getUserByEmail(email);
             if (user != null) {
                 UserService.getInstance().updateUserRole(user.getId(), "ADMIN");
-                System.out.println("SUCCESS: User promoted to ADMIN.");
+                LoggingUtil.info("SUCCESS: User promoted to ADMIN.");
             } else {
-                System.out.println("User not found. They will get ADMIN status automatically when they sign up.");
+                LoggingUtil.warning("User not found. They will get ADMIN status automatically when they sign up.");
             }
         } catch (Exception e) {
             e.printStackTrace();

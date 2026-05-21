@@ -16,10 +16,10 @@ public class HibernateUtil {
             try (java.io.InputStream is = HibernateUtil.class.getClassLoader().getResourceAsStream("db.properties")) {
                 if (is != null) {
                     props.load(is);
-                    System.out.println("[Course-Vault] Loaded DB configuration from db.properties");
+                    LoggingUtil.info("[Course-Vault] Loaded DB configuration from db.properties");
                 }
             } catch (Exception e) {
-                System.err.println("Note: Could not load db.properties: " + e.getMessage());
+                LoggingUtil.error("Note: Could not load db.properties: " + e.getMessage());
             }
 
             String dbUser = System.getenv("DB_USER");
@@ -51,26 +51,23 @@ public class HibernateUtil {
                         .applySettings(configuration.getProperties()).build();
 
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-                System.out.println("[Course-Vault] Hibernate SessionFactory built successfully.");
+                LoggingUtil.info("[Course-Vault] Hibernate SessionFactory built successfully.");
             } catch (Exception e) {
-                System.err.println("*******************************************************************");
-                System.err.println("CRITICAL: HIBERNATE INITIALIZATION FAILED!");
-                System.err.println("REASON: " + e.getMessage());
+                LoggingUtil.error("*******************************************************************");
+                LoggingUtil.error("CRITICAL: HIBERNATE INITIALIZATION FAILED!");
+                LoggingUtil.error("REASON: " + e.getMessage());
+                LoggingUtil.error("ROOT CAUSE: " + (e.getCause() != null ? e.getCause().getClass().getName() : e.getClass().getName()) + ": " + e.getMessage());
                 
-                Throwable root = e;
-                while (root.getCause() != null) root = root.getCause();
-                System.err.println("ROOT CAUSE: " + root.getClass().getName() + ": " + root.getMessage());
-                
-                if (root.getMessage().contains("Access denied")) {
-                    System.err.println("Check your MySQL username/password in HibernateUtil.java");
-                } else if (root.getMessage().contains("Communications link failure")) {
-                    System.err.println("Is XAMPP/MySQL running? Ensure MySQL is started.");
-                } else if (root.getMessage().contains("Unknown database")) {
-                    System.err.println("Create the 'course_vault' database in MySQL");
+                if (e.getMessage().contains("Access denied")) {
+                    LoggingUtil.error("Check your MySQL username/password in HibernateUtil.java");
+                } else if (e.getMessage().contains("Communications link failure")) {
+                    LoggingUtil.error("Is XAMPP/MySQL running? Ensure MySQL is started.");
+                } else if (e.getMessage().contains("Unknown database")) {
+                    LoggingUtil.error("Create the 'course_vault' database in MySQL");
                 }
-                System.err.println("*******************************************************************");
+                LoggingUtil.error("*******************************************************************");
 
-                throw new RuntimeException("Database Error: " + root.getMessage(), e);
+                throw new RuntimeException("Database Error: " + e.getMessage(), e);
             }
         }
         return sessionFactory;

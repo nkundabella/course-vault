@@ -16,7 +16,7 @@ public class Main {
         String webappDirLocation = "src/main/webapp/";
         File webappDir = new File(webappDirLocation);
         
-        System.out.println("Checking webapp directory: " + webappDir.getAbsolutePath());
+        LoggingUtil.info("Checking webapp directory: " + webappDir.getAbsolutePath());
         if (!webappDir.exists()) {
             System.err.println("CRITICAL ERROR: The webapp directory was NOT found!");
             System.err.println("Current Working Directory: " + new File(".").getAbsolutePath());
@@ -45,34 +45,34 @@ public class Main {
             resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
                     additionWebInfClasses.getAbsolutePath(), "/"));
             ctx.setResources(resources);
-            System.out.println("Integrated classes from: " + additionWebInfClasses.getAbsolutePath());
+            LoggingUtil.info("Integrated classes from: " + additionWebInfClasses.getAbsolutePath());
         } else {
-            System.out.println("WARNING: target/classes not found. Run 'mvn compile' if you get 404s on servlets.");
+            LoggingUtil.warning("WARNING: target/classes not found. Run 'mvn compile' if you get 404s on servlets.");
         }
 
         // Pre-flight Database Check
-        System.out.println("-------------------------------------------------------------------");
-        System.out.println("Verifying Database Connection...");
+        LoggingUtil.info("-------------------------------------------------------------------");
+        LoggingUtil.info("Verifying Database Connection...");
         try {
             com.coursevault.hibernate.HibernateUtil.getSessionFactory();
-            System.out.println("DATABASE: OK - Connected Successfully.");
+            LoggingUtil.info("DATABASE: OK - Connected Successfully.");
         } catch (Exception e) {
-            System.err.println("DATABASE: FAILED!");
-            System.err.println("ERROR: Could not connect to MySQL database 'coursevault'.");
-            System.err.println("REMEDY: Ensure XAMPP/MySQL is running and the 'coursevault' schema exists.");
-            System.err.println("-------------------------------------------------------------------");
+            LoggingUtil.error("DATABASE: FAILED!");
+            LoggingUtil.error("ERROR: Could not connect to MySQL database 'coursevault'.");
+            LoggingUtil.error("REMEDY: Ensure XAMPP/MySQL is running and the 'coursevault' schema exists.");
+            LoggingUtil.info("-------------------------------------------------------------------");
             // We continue anyway so Tomcat logs can be viewed, or the user can fix it on the fly
         }
 
-        System.out.println("-------------------------------------------------------------------");
-        System.out.println("Starting Course-Vault System [Standalone Mode]...");
-        System.out.println("Note: If you get a 404, verify that 'index.jsp' exists in " + webappDirLocation);
-        System.out.println("-------------------------------------------------------------------");
+        LoggingUtil.info("-------------------------------------------------------------------");
+        LoggingUtil.info("Starting Course-Vault System [Standalone Mode]...");
+        LoggingUtil.info("Note: If you get a 404, verify that 'index.jsp' exists in " + webappDirLocation);
+        LoggingUtil.info("-------------------------------------------------------------------");
 
         tomcat.start();
         
         String appUrl = "http://localhost:" + webPort + "/";
-        System.out.println("Course-Vault is LIVE at: " + appUrl);
+        LoggingUtil.info("Course-Vault is LIVE at: " + appUrl);
         
         // Automatically open the browser
         openBrowser(appUrl);
@@ -81,7 +81,7 @@ public class Main {
     }
 
     private static void openBrowser(String url) {
-        System.out.println("Attempting to open browser: " + url);
+        LoggingUtil.info("Attempting to open browser: " + url);
         try {
             String os = System.getProperty("os.name").toLowerCase();
             if (os.contains("win")) {
@@ -95,7 +95,7 @@ public class Main {
                 new ProcessBuilder("xdg-open", url).start();
             }
         } catch (Exception e) {
-            System.err.println("OS-specific browser launch failed. Trying Desktop API...");
+            LoggingUtil.error("OS-specific browser launch failed. Trying Desktop API...");
             try {
                 if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                     Desktop.getDesktop().browse(new URI(url));
@@ -103,16 +103,16 @@ public class Main {
                     manualOpenHelp(url);
                 }
             } catch (Exception e2) {
-                System.err.println("Desktop API also failed.");
+                LoggingUtil.error("Desktop API also failed.");
                 manualOpenHelp(url);
             }
         }
     }
 
     private static void manualOpenHelp(String url) {
-        System.out.println("-------------------------------------------------------------------");
-        System.out.println("Please open your browser manually and navigate to:");
-        System.out.println(url);
-        System.out.println("-------------------------------------------------------------------");
+        LoggingUtil.info("-------------------------------------------------------------------");
+        LoggingUtil.info("Please open your browser manually and navigate to:");
+        LoggingUtil.info(url);
+        LoggingUtil.info("-------------------------------------------------------------------");
     }
 }

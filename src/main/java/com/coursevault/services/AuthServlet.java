@@ -137,12 +137,12 @@ public class AuthServlet extends HttpServlet {
         }
 
         try {
-            System.out.println("[Course-Vault] Sending 2FA code to: " + pendingUser.getEmail());
+            LoggingUtil.info("[Course-Vault] Sending 2FA code to: " + pendingUser.getEmail());
             mailService.sendVerificationCode(pendingUser.getEmail(), code);
-            System.out.println("[Course-Vault] 2FA code sent successfully.");
+            LoggingUtil.info("[Course-Vault] 2FA code sent successfully.");
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception e) {
-            System.err.println("[Course-Vault] Email send failed: " + e.getMessage());
+            LoggingUtil.error("[Course-Vault] Email send failed: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             resp.setContentType("text/plain");
             resp.getWriter().write("Failed to send code: " + e.getMessage());
