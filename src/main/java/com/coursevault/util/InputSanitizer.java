@@ -1,5 +1,7 @@
 package com.coursevault.util;
 
+import com.coursevault.util.LoggingUtil;
+
 public class InputSanitizer {
     public static String cleanText(String text, int maxLength) {
         if (text == null) return "";
@@ -23,7 +25,7 @@ public class InputSanitizer {
         if (upper.equals("PAST_PAPER")) return "PAST_PAPER";
         if (upper.equals("GROUP_PRESENTATION")) return "GROUP_PRESENTATION";
         if (upper.equals("OTHER")) return "OTHER";
-        System.out.println("[InputSanitizer] WARNING: Unknown resource type encountered: " + type + ". Falling back to NOTES.");
+        LoggingUtil.warning("[InputSanitizer] Unknown resource type encountered: " + type + ". Falling back to NOTES.");
         return "NOTES";
     }
 

@@ -30,7 +30,7 @@ public class BrowserLauncherListener implements ServletContextListener {
                 
                 String url = "http://localhost:8081" + contextPath + "/";
                 
-                System.out.println("[Course-Vault] System Initialized at: " + url + ". Launching browser...");
+        LoggingUtil.info("[Course-Vault] System Initialized at: " + url + ". Launching browser...");
                 
                 if (os.contains("win")) {
                     new ProcessBuilder("cmd", "/c", "start", url).start();
@@ -43,7 +43,7 @@ public class BrowserLauncherListener implements ServletContextListener {
                 }
             } catch (Exception e) {
                 // Silently fail if browser can't be opened (e.g. on a real server)
-                System.err.println("[Course-Vault] Could not auto-launch browser: " + e.getMessage());
+                LoggingUtil.error("[Course-Vault] Could not auto-launch browser: " + e.getMessage());
             }
         }).start();
     }

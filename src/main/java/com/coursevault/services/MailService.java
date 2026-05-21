@@ -3,7 +3,7 @@ package com.coursevault.services;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import java.util.Properties;
+import com.coursevault.util.LoggingUtil;
 
 public class MailService {
     private static MailService instance = new MailService();
@@ -33,7 +33,7 @@ public class MailService {
                 this.smtpPass = config.getSmtpPass();
             }
         } catch (Exception e) {
-            System.err.println("[MailService] Pre-config check failed: " + e.getMessage());
+            LoggingUtil.error("[MailService] Pre-config check failed: " + e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class MailService {
 
     public void sendVerificationCode(String toEmail, String code) throws MessagingException {
         if (!isConfigured()) {
-            System.err.println("[MailService] SMTP not configured!");
+            LoggingUtil.error("[MailService] SMTP not configured!");
             throw new MessagingException("SMTP not configured");
         }
 
@@ -55,7 +55,7 @@ public class MailService {
         final String user = this.smtpUser;
         final String pass = this.smtpPass;
 
-        System.out.println("[MailService] Sending to=" + toEmail + " via " + host + ":" + port + " user=" + user);
+        LoggingUtil.info("[MailService] Sending to=" + toEmail + " via " + host + ":" + port + " user=" + user);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -79,8 +79,8 @@ public class MailService {
         message.setSubject("CourseVault | Your Verification Code");
         message.setText("Your CourseVault verification code is:\n\n" + code + "\n\nThis code expires in 10 minutes.");
 
-        System.out.println("[MailService] Connecting to SMTP…");
+        LoggingUtil.info("[MailService] Connecting to SMTP…");
         Transport.send(message);
-        System.out.println("[MailService] SUCCESS — email delivered to " + toEmail);
+        LoggingUtil.info("[MailService] SUCCESS — email delivered to " + toEmail);
     }
 }
