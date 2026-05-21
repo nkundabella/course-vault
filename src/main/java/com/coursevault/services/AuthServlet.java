@@ -7,8 +7,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.io.IOException;
+import com.coursevault.util.LoggingUtil;
 
 @WebServlet("/auth/*")
 public class AuthServlet extends HttpServlet {
@@ -38,7 +38,7 @@ public class AuthServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
-        System.out.println("[AuthServlet] POST Path: " + path);
+        LoggingUtil.info("[AuthServlet] POST Path: " + path);
         
         if (path == null) path = "/";
         if (path.length() > 1 && path.endsWith("/")) {
@@ -71,7 +71,7 @@ public class AuthServlet extends HttpServlet {
                 handleBootstrapSMTP(req, resp);
                 break;
             default:
-                System.out.println("[AuthServlet] No POST route found for: " + path);
+                LoggingUtil.info("[AuthServlet] No POST route found for: " + path);
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -93,21 +93,21 @@ public class AuthServlet extends HttpServlet {
 
             User user = userService.getUserByEmail(email);
             if (user == null) {
-                System.out.println("[AuthServlet] Login failed: User not found for email " + email);
+                LoggingUtil.info("[AuthServlet] Login failed: User not found for email " + email);
                 resp.setHeader("X-Login-Error", "user_not_found");
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
             if (!BCrypt.checkpw(password, user.getPassword())) {
-                System.out.println("[AuthServlet] Login failed: Password mismatch for " + email);
+                LoggingUtil.info("[AuthServlet] Login failed: Password mismatch for " + email);
                 resp.setHeader("X-Login-Error", "invalid_password");
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
 
             // SUCCESS: Skip 2FA for login as requested, just log in!
-            System.out.println("[AuthServlet] Login SUCCESS for " + email + " (Role: " + user.getRole() + ")");
+            LoggingUtil.info("[AuthServlet] Login SUCCESS for " + email + " (Role: " + user.getRole() + ")");
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -218,7 +218,7 @@ public class AuthServlet extends HttpServlet {
         // Also update the active mail service
         mailService.configure(host, port, user, pass);
         
-        System.out.println("[AuthServlet] SMTP Bootstrap successful and persisted.");
+        LoggingUtil.info("[AuthServlet] SMTP Bootstrap successful and persisted.");
         resp.sendRedirect(req.getContextPath() + "/auth/login?smtp=configured");
     }
 
@@ -324,12 +324,12 @@ public class AuthServlet extends HttpServlet {
             if (user != null) {
                 String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
                 userService.updatePassword(user.getId(), hashedPassword);
-                System.out.println("[AuthServlet] Password updated successfully via UserService.");
+                LoggingUtil.info("[AuthServlet] Password updated successfully via UserService.");
 
                 session.removeAttribute("resetPasswordEmail");
                 resp.sendRedirect(req.getContextPath() + "/auth/login?success=password_reset");
             } else {
-                System.out.println("[AuthServlet] Password update aborted: User disappeared?");
+                LoggingUtil.warning("[AuthServlet] Password update aborted: User disappeared?");
                 resp.sendRedirect(req.getContextPath() + "/auth/login");
             }
         } catch (Exception e) {

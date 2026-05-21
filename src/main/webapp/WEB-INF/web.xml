@@ -13,11 +13,30 @@
 
     <!-- Remember Me / Keep Logged In Configuration -->
     <session-config>
-        <session-timeout>43200</session-timeout>
-        <cookie-config>
-            <max-age>2592000</max-age> 
-        </cookie-config>
-    </session-config>
+    <session-timeout>43200</session-timeout>
+    <cookie-config>
+        <max-age>2592000</max-age>
+        <http-only>true</http-only>
+        <secure>true</secure>
+        <same-site>Lax</same-site>
+    </cookie-config>
+</session-config>
+<filter>
+    <filter-name>CsrfFilter</filter-name>
+    <filter-class>com.coursevault.filter.CsrfFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>CsrfFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+<filter>
+    <filter-name>SecurityHeadersFilter</filter-name>
+    <filter-class>com.coursevault.filter.SecurityHeadersFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>SecurityHeadersFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
 
     <error-page>
         <error-code>404</error-code>
