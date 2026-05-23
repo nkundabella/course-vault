@@ -252,6 +252,7 @@
                     </c:if>
 
                     <form id="signupForm" action="${pageContext.request.contextPath}/auth/signup" method="POST">
+    <input type="hidden" name="csrfToken" value="${csrfToken}" />
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Full Name</label>

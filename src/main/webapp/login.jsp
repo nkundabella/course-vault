@@ -392,6 +392,7 @@
                     </c:if>
 
                     <form id="loginForm" onsubmit="handleFormSubmit(event)">
+                        <input type="hidden" name="csrfToken" value="${csrfToken}" />
 
 
                         <!-- Step 1: Credentials -->
@@ -432,6 +433,7 @@
                         </c:if>
 
                         <form action="${pageContext.request.contextPath}/auth/bootstrap-smtp" method="POST">
+    <input type="hidden" name="csrfToken" value="${csrfToken}" />
                             <!-- Gmail SMTP defaults -->
                             <div class="form-group" style="margin-bottom: 1rem;">
                                 <label>SMTP Host</label>

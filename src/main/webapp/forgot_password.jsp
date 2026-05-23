@@ -266,6 +266,7 @@
                     </c:if>
 
                     <form action="${pageContext.request.contextPath}/auth/verify-identity" method="POST">
+    <input type="hidden" name="csrfToken" value="${csrfToken}" />
                         <div class="form-group">
                             <label>Email Address</label>
                             <input type="email" name="email" placeholder="email@example.com" required>

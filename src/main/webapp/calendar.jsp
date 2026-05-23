@@ -246,6 +246,7 @@
                         <div class="modal-content">
                             <h2 style="margin-bottom: 1.5rem;">Add Academic Event</h2>
                             <form action="${pageContext.request.contextPath}/calendar/add" method="POST">
+    <input type="hidden" name="csrfToken" value="${csrfToken}" />
                                 <div class="form-group">
                                     <label>Event Title</label>
                                     <input type="text" name="title" required placeholder="e.g., Final Exams">
