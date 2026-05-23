@@ -19,7 +19,11 @@ public class SecurityHeadersFilter implements Filter {
             httpResp.setHeader("X-Frame-Options", "SAMEORIGIN");
             httpResp.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
             // Tightened CSP: no unsafe-inline, only self sources
-            httpResp.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; frame-ancestors 'self'; base-uri 'self';");
+            httpResp.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self';");
+            // Additional security headers
+            httpResp.setHeader("X-XSS-Protection", "0"); // Disable legacy XSS protection
+            httpResp.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+            httpResp.setHeader("X-Permitted-Cross-Domain-Policies", "none");
         }
         chain.doFilter(request, response);
     }
