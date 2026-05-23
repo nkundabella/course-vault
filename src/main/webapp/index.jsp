@@ -195,6 +195,7 @@
                             <img src="https://ui-avatars.com/api/?name=${user.fullName}&background=A68B5B&color=fff"
                                 alt="Profile">
                         </div>
+                        <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode"><i class="fas fa-moon"></i></button>
                     </header>
 
                     <section class="hero-card">
